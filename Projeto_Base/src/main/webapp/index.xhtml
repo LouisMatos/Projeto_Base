@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:ui="http://java.sun.com/jsf/facelets"
+    xmlns:h="http://java.sun.com/jsf/html"
+    xmlns:f="http://java.sun.com/jsf/core"
+    xmlns:p="http://primefaces.org/ui">
+<h:head>
+	<title>Login V16</title>
+	<meta charset="UTF-8"></meta>
+	<meta name="viewport" content="width=device-width, initial-scale=1"></meta>
+	
+
+<!--===============================================================================================-->	
+	<link type="text/css" rel="stylesheet" href="#{request.contextPath}/resources/imagens/images/icons/favicon.ico"></link>
+<!--===============================================================================================-->
+	<link type="text/css" rel="stylesheet" href="#{request.contextPath}/resources/vendor/bootstrap/css/bootstrap.min.css"></link>
+<!--===============================================================================================-->
+	<link type="text/css" rel="stylesheet" href="#{request.contextPath}/resources/fonts/font-awesome-4.7.0/css/font-awesome.min.css"></link>
+<!--===============================================================================================-->
+	<link type="text/css" rel="stylesheet" href="#{request.contextPath}/resources/fonts/Linearicons-Free-v1.0.0/icon-font.min.css"></link>
+<!--===============================================================================================-->
+	<link type="text/css" rel="stylesheet" href="#{request.contextPath}/resources/vendor/animate/animate.css"></link>
+<!--===============================================================================================-->	
+	<link type="text/css" rel="stylesheet" href="#{request.contextPath}/resources/vendor/css-hamburgers/hamburgers.min.css"></link>
+<!--===============================================================================================-->
+	<link type="text/css" rel="stylesheet" href="#{request.contextPath}/resources/vendor/animsition/css/animsition.min.css"></link>
+<!--===============================================================================================-->
+	<link type="text/css" rel="stylesheet" href="#{request.contextPath}/resources/vendor/select2/select2.min.css"></link>
+<!--===============================================================================================-->	
+	<link type="text/css" rel="stylesheet" href="#{request.contextPath}/resources/vendor/daterangepicker/daterangepicker.css"></link>
+<!--===============================================================================================-->
+	<link type="text/css" rel="stylesheet" href="#{request.contextPath}/resources/css/util.css"></link>
+	<link type="text/css" rel="stylesheet" href="#{request.contextPath}/resources/css/main.css"></link>
+<!--===============================================================================================-->
+
+	
+</h:head>
+<h:body>
+	
+	<div class="limiter">
+		<div class="container-login100" style="background-image: url('resources/imagens/images/bg-01.jpg');">
+			<div class="wrap-login100 p-t-30 p-b-50">
+				<span class="login100-form-title p-b-41">
+					Login da Conta	
+				</span>
+				<h:form id="login-form"  role="form" style="display: block;" class="login100-form validate-form p-b-33 p-t-5">
+				
+				
+					<p:growl  id="growl"  life="2000"  styleClass="ui-growl-message-green"/>
+		
+					<div class="wrap-input100 validate-input" data-validate = "Insira nome de usuário">
+						<h:inputText  converter="ConverterEmptyToNull" class="input100"  type="text" id="email" value="#{loginController.usuario.email}" immediate="true">
+							 <f:passThroughAttribute name="placeholder" value="Nome de usuário" />
+						</h:inputText>
+						<span class="focus-input100" data-placeholder="&#xe82a;"></span>
+					</div>
+
+					<div class="wrap-input100 validate-input" data-validate="Digite a senha">
+						<h:inputSecret converter="ConverterEmptyToNull" class="input100" id="senha" value="#{loginController.usuario.senha}" immediate="true" >
+							 <f:passThroughAttribute name="placeholder" value="Senha" />
+						</h:inputSecret>
+						<span class="focus-input100" data-placeholder="&#xe80f;"></span>
+					</div>
+					
+					
+
+					<div class="container-login100-form-btn m-t-32">
+						<h:commandButton class="login100-form-btn" value="Entrar"  action="#{loginController.efetuarLogin}"  update="growl"  >
+							<f:ajax execute="@form" render="@all" event="action"/>
+						</h:commandButton>
+					</div>
+
+					
+
+				</h:form>
+			</div>
+		</div>
+	</div>
+	
+
+	<div id="dropDownSelect1"></div>
+	
+<!--===============================================================================================-->
+	<script src="#{request.contextPath}/resources/vendor/jquery/jquery-3.2.1.min.js"></script>
+<!--===============================================================================================-->
+	<script src="#{request.contextPath}/resources/vendor/animsition/js/animsition.min.js"></script>
+<!--===============================================================================================-->
+	<script src="#{request.contextPath}/resources/vendor/bootstrap/js/popper.js"></script>
+	<script src="vendor/bootstrap/js/bootstrap.min.js"></script>
+<!--===============================================================================================-->
+	<script src="#{request.contextPath}/resources/vendor/select2/select2.min.js"></script>
+<!--===============================================================================================-->
+	<script src="#{request.contextPath}/resources/vendor/daterangepicker/moment.min.js"></script>
+	<script src="#{request.contextPath}/resources/vendor/daterangepicker/daterangepicker.js"></script>
+<!--===============================================================================================-->
+	<script src="#{request.contextPath}/resources/vendor/countdowntime/countdowntime.js"></script>
+<!--===============================================================================================-->
+	<script src="#{request.contextPath}/resources/js/main.js"></script>
+
+</h:body>
+</html>

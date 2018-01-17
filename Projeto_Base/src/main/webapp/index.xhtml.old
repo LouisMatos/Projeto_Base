@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:ui="http://java.sun.com/jsf/facelets"
+    xmlns:h="http://java.sun.com/jsf/html"
+    xmlns:f="http://java.sun.com/jsf/core"
+    xmlns:p="http://primefaces.org/ui">
+<h:head>
+	<script src="#{request.contextPath}/resources/js/topmenu.js"></script>
+	<script src="#{request.contextPath}/resources/js/validacoes.js"></script>
+	<script src="#{request.contextPath}/resources/js/jquery-1.11.1.js"></script>
+	<script type="text/javascript" src="#{request.contextPath}/resources/js/bootstrap.js"></script>
+	<link type="text/css" rel="stylesheet" href="#{request.contextPath}/resources/css/bootstrap.min.css" />
+	<link type="text/css" rel="stylesheet" href="#{request.contextPath}/resources/css/bootstrap-theme.css" />
+	<link type="text/css" rel="stylesheet" href="#{request.contextPath}/resources/css/DeixarRodapeNoFim.css" />
+	
+</h:head>
+<h:body>
+ 	
+	 	<div class="container">
+	    	<div class="row">
+				<div class="col-md-6 col-md-offset-3">
+					<div class="panel panel-login">
+						<div class="panel-heading">
+							<div class="row">
+								<div class="col-xs-6">
+									<a href="#" class="active" id="login-form-link">Login no Sistema</a>
+								</div>
+								<div class="col-xs-6">
+									<a href="#" id="register-form-link">Novo Usuário</a>
+								</div>
+							</div>
+							<hr></hr>
+						</div>
+						<div class="panel-body">
+							<div class="row">
+								<div class="col-lg-12">
+									<h:form id="login-form"  role="form" style="display: block;">
+										<div class="form-group">
+											<h:outputLabel value="Email: " for="email" />
+											<h:inputText id="email" value="#{loginController.usuario.email}"  class="form-control" onblur="isEmailLogin();" />
+										</div>
+										<div class="form-group">
+											<h:outputLabel value="Senha: " for="senha" />
+											<h:inputSecret id="senha" value="#{loginController.usuario.senha}" class="form-control" />
+										</div>
+										
+										<h:message for="erroLogin" id="erroLogin" showDetail="true" />
+									
+										<div class="form-group">
+											<div class="row">
+												<div class="col-sm-6 col-sm-offset-3">
+													<h:commandButton value="Efetuar Login"  class="form-control btn btn-register" disabled="" >
+												        <f:ajax execute="@form" render="erroLogin" listener="#{loginController.efetuarLogin}"  onevent="limpa_campos_login" />
+												    </h:commandButton>
+												</div>
+											</div>
+										</div>							
+										
+									</h:form>
+									<h:form id="register-form"   role="form" style="display: none;">
+									<h:message for="validaUsuario" id="validaUsuario" showDetail="true"/>
+										<div class="form-group">
+											<h:outputLabel for="email_cadastro" value="Email:" />
+											<h:inputText id="email_cadastro" value="#{usuarioComunController.usuario.email}" class="form-control"  onblur="isEmailUsuarioComun();" />
+										</div>
+										<div class="form-group">
+											<h:outputLabel for="senha_cadastro" value="Senha:" />
+											<h:inputSecret id="senha_cadastro" value="#{usuarioComunController.usuario.senha}" class="form-control" />
+										</div>
+										<div class="form-group">
+											<h:outputLabel for="confirma_senha_cadastro" value="Confirma a Senha:" />
+											<h:inputSecret id="confirma_senha_cadastro" value="#{usuarioComunController.usuario.confirmaSenha}" class="form-control" onblur="validarSenha();"/>
+										</div>
+										
+										
+										
+										
+										
+										
+										
+										<div class="form-group">
+											<div class="row">
+												<div class="col-sm-6 col-sm-offset-3">
+													<h:commandButton value="Gravar"  class="form-control btn btn-register" disabled="">
+												        <f:ajax execute="@form" render="validaUsuario" listener="#{usuarioComunController.grava}" onevent="limpa_campos_cad_usuario_comum"/>
+												    </h:commandButton>
+												    <h:outputText id="message" value="#{usuarioComunController.mensagem}" />
+													
+												</div>
+											</div>
+										</div>
+										<div class="form-group">
+											<div class="row">
+												<div class="col-sm-6 col-sm-offset-3">
+													<h:commandButton value="Cancela Edicao" action="#{usuarioComunController.cancela}" class="form-control btn btn-register" immediate="true" />
+												</div>
+											</div>
+										</div>
+										
+									</h:form>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+ 	
+</h:body>
+</html>
+

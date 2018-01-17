@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui">
+
+<h:head>
+	<title></title>
+	<script src="#{request.contextPath}/resources/js/topmenu.js"></script>
+	<script src="#{request.contextPath}/resources/js/validacoes.js"></script>
+	<script src="#{request.contextPath}/resources/js/jquery-1.11.1.js"></script>
+	<script type="text/javascript"
+		src="#{request.contextPath}/resources/js/bootstrap.js"></script>
+	<link type="text/css" rel="stylesheet"
+		href="#{request.contextPath}/resources/css/bootstrap.min.css" />
+	<link type="text/css" rel="stylesheet"
+		href="#{request.contextPath}/resources/css/bootstrap-theme.css" />
+	<link type="text/css" rel="stylesheet"
+		href="#{request.contextPath}/resources/css/DeixarRodapeNoFim.css" />
+	<style type="text/css">
+.bs-example {
+	margin: 20px;
+}
+</style>
+</h:head>
+
+<h:body>
+
+
+
+	<div id="header" class="header">
+		<ui:insert name="header">
+			<ui:include src="topmenu.xhtml" />
+		</ui:insert>
+	</div>
+	<div class="bs-example">
+		<div id="content" class="content">
+			<ui:insert name="content">
+				<ui:include src="content.xhtml" />
+			</ui:insert>
+		</div>
+	</div>
+	<p:growl id="growl" life="2000" styleClass="ui-growl-message-green" showDetail="true"/>
+
+	<div id="footer" class="footer">
+		<ui:insert name="footer">
+			<ui:include src="footer.xhtml" />
+		</ui:insert>
+	</div>
+
+</h:body>
+</html>

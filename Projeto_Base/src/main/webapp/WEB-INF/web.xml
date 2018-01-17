@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xmlns="http://java.sun.com/xml/ns/javaee"
+xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd"
+id="WebApp_ID" version="3.0">
+
+    <!-- Nome da sua aplicação -->
+    <display-name>Projeto-Base</display-name>
+    
+    
+    
+
+    <!-- Configuração do arquivo inicial quando a aplicação for inicializada -->
+    <welcome-file-list>
+        <welcome-file>index.xhtml</welcome-file>
+    </welcome-file-list>
+
+    <!-- Configuração do Controlador Faces Servlet -->
+    <servlet>
+        <servlet-name>Faces Servlet</servlet-name>
+        <servlet-class>javax.faces.webapp.FacesServlet</servlet-class>
+        <load-on-startup>1</load-on-startup>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>Faces Servlet</servlet-name>
+        <url-pattern>*.xhtml</url-pattern>
+    </servlet-mapping>
+ 
+ 	<listener>
+		<listener-class>br.com.luismatos.util.MyServletContextListener</listener-class>
+	</listener>
+ 
+ 
+	<filter>
+		<filter-name>LoginFilter</filter-name>
+		<filter-class>br.com.luismatos.filter.LoginFilter</filter-class>
+	</filter> 
+	
+	<filter-mapping>
+		<filter-name>LoginFilter</filter-name>
+		<url-pattern>/aplicacao/*</url-pattern>
+		<dispatcher>FORWARD</dispatcher>
+		<dispatcher>REQUEST</dispatcher>
+	</filter-mapping>
+	
+	
+	<listener>
+		<listener-class>br.com.luismatos.session.SessionListener</listener-class>
+	</listener>
+	<session-config>
+		<session-timeout>60</session-timeout>
+	</session-config>
+	
+	<!-- Para o ajax sempre ser chamado com sucesso... -->
+	 <context-param>
+	     <param-name>javax.faces.PARTIAL_STATE_SAVING</param-name>
+	     <param-value>false</param-value>
+	 </context-param>
+</web-app>
