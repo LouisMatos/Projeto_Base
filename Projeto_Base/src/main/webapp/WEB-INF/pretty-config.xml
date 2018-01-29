@@ -9,5 +9,10 @@
 		<pattern value="/principal"/>
 		<view-id value="/aplicacao/principal.xhtml" />
 	</url-mapping>
+	
+	<url-mapping id="novoUsuario">
+		<pattern value="/novoUsuario"/>
+		<view-id value="/aplicacao/sistema/novoUsuario.xhtml" />
+	</url-mapping>
 
 </pretty-config>

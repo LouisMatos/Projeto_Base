@@ -6,11 +6,26 @@
 	xmlns:p="http://primefaces.org/ui">
 
 <h:head>
+
+
+
 	
 	
 
 </h:head>
 <ui:composition>
+
+<style>
+.dropdown-submenu {
+    position: relative;
+}
+
+.dropdown-submenu .dropdown-menu {
+    top: 0;
+    right: 100%;
+    margin-top: -1px;
+}
+</style>
 	<body>
 		<h:form>
 			<div class="bs-example">
@@ -41,6 +56,15 @@
 								</ul>
 							</li>
 							</h:panelGroup>
+							
+							
+							
+             
+               
+           
+							
+							
+							
 							<li class="dropdown"><a href="#" class="dropdown-toggle"
 								data-toggle="dropdown" role="button" aria-haspopup="true"
 								aria-expanded="false">Curso<span class="caret"></span></a>
@@ -58,6 +82,8 @@
 											action="#{topmenuController.cadastrarProfessor}">Cadastrar Professor</h:commandLink></li>
 									<li><h:commandLink
 											action="#{topmenuController.listarProfessores}">Listar Professores</h:commandLink></li>
+											
+									
 								</ul></li>
 							<li><a href="#">Usuário</a></li>
 							<li><a href="#">Trabalho</a></li>
@@ -77,10 +103,15 @@
 								data-toggle="dropdown" role="button" aria-haspopup="true"
 								aria-expanded="false">Sistema<span class="caret"></span></a>
 								<ul class="dropdown-menu">
-									<li><h:commandLink
-											action="#{topmenuController.cadastrarAluno}">Cadastrar Aluno</h:commandLink></li>
-									<li><h:commandLink
-											action="#{topmenuController.listarAlunos}">Listar Alunos</h:commandLink></li>
+						
+									<li class="dropdown-submenu">
+								        <a class="test" tabindex="-1" href="#">Usuário<span class="caret"></span></a>
+								        <ul class="dropdown-menu">
+								          <li><h:commandLink action="#{topmenuController.redirecionaPaginaNovoUsuario}">Novo</h:commandLink></li>
+								          <li><a tabindex="-1" href="#">Editar</a></li>
+								          <li><a tabindex="-1" href="#">Pesquisar</a></li>
+								        </ul>
+								      </li>
 								</ul>
 							</li>
 
@@ -92,6 +123,16 @@
 
 
 		</h:form>
+		
+		<script>
+$(document).ready(function(){
+  $('.dropdown-submenu a.test').on("click", function(e){
+    $(this).next('ul').toggle();
+    e.stopPropagation();
+    e.preventDefault();
+  });
+});
+</script>
 	</body>
 
 
