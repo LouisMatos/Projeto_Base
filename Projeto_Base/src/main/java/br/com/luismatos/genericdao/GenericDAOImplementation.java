@@ -46,7 +46,7 @@ public class GenericDAOImplementation<T> implements GenericDAOInterface<T> {
 			if(!entityManager.getTransaction().isActive()){
 				entityManager.getTransaction().begin();
 			}
-			//Verifico se o Entity Manager possui o objeto, se n„o tiver coloco no Entity Manager
+			//Verifico se o Entity Manager possui o objeto, se n√£o tiver coloco no Entity Manager
 			entityManager.remove(entityManager.contains(object) ? object : entityManager.merge(object));
 			entityManager.getTransaction().commit();
 		}catch(Exception ex){

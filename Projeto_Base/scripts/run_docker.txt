@@ -1,0 +1,9 @@
+[STEPS]
+
+docker-compose build --no-cache && docker-compose up -d
+
+docker-compose run maven
+
+docker rmi -f $(docker images -a -q)
+
+docker rm -vf $(docker ps -a -q)

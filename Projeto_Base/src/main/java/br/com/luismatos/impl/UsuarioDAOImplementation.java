@@ -55,7 +55,7 @@ public class UsuarioDAOImplementation extends GenericDAOImplementation<Usuario> 
 		
 		
 		
-		//System.out.println("Existe Usu·rio " + usuario.getEmail() + "? " + encontrado);
+		//System.out.println("Existe Usu√°rio " + usuario.getEmail() + "? " + encontrado);
 		entityManager.flush();
 		entityManager.getTransaction().commit();
 		return usu;

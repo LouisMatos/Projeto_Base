@@ -9,13 +9,13 @@ xsi:schemaLocation="http://java.sun.com/xml/ns/persistence http://java.sun.com/x
 		
 		<properties>
 			<!--String Conexao com o banco de dados -->
-			<property name="hibernate.connection.url" value ="jdbc:mysql://localhost:3306/agenda"/>
+			<property name="hibernate.connection.url" value ="jdbc:mysql://db:3306/agenda"/>
 			<!--Dialeto entendido pelo banco -->
 			<property name="hibernate.dialect"  value = "org.hibernate.dialect.MySQL5InnoDBDialect"/>
 			<!--Driver JDBC para acesso ao banco -->
 			<property name="hibernate.connection.driver_class" value = "com.mysql.jdbc.Driver"/>
 			<property name="hibernate.connection.username" value="root"/>
-			<property name="hibernate.connection.password" value ="projeto"/>
+			<property name="hibernate.connection.password" value ="123456"/>
 			<!--Metodo de atualizacao -->
 			<property name="hibernate.hbm2ddl.auto" value = "update"/>
 			<property name="hibernate.show_sql"  value = "true"/>

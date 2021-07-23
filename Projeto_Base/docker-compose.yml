@@ -1,0 +1,36 @@
+version: '2'
+services:
+  db:
+    image: mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=123456
+      - MYSQL_DATABASE=agenda
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql:/var/lib/mysql
+    networks:
+      - mysql-compose-network
+  maven:
+      build:
+        context: dockerfiles
+        dockerfile: dockerfile-maven
+      volumes:
+        - ~/.m2:/root/.m2
+        - $PWD:/usr/src/mymaven
+      volumes_from:
+        - tomcat
+  tomcat:
+    build:
+      context: dockerfiles
+      dockerfile: dockerfile-apache
+    ports:
+      - "8888:8080"
+    networks:
+      - mysql-compose-network
+
+networks: 
+  mysql-compose-network:
+    driver: bridge
+volumes:
+  mysql:

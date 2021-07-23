@@ -38,10 +38,10 @@ public class LoginController implements Serializable {
 		System.out.println(usuario.toString());
 		
 		if(usuario.getSenha() == "" && usuario.getEmail() == ""){
-			FacesUtil.assErrorMessage("Informar Usu·rio!");
+			FacesUtil.assErrorMessage("Informar Usu√°rio!");
 			FacesUtil.assErrorMessage("Informar Senha!");
 		}else if(usuario.getEmail() == ""){
-			FacesUtil.assErrorMessage("Informar Usu·rio!");
+			FacesUtil.assErrorMessage("Informar Usu√°rio!");
 		}else if(usuario.getSenha() == ""){
 			FacesUtil.assErrorMessage("Informar Senha!");
 		}else{
@@ -49,7 +49,7 @@ public class LoginController implements Serializable {
 				SessionContext.getInstance().setAttribute("info_user", user);
 				FacesContext.getCurrentInstance().getExternalContext().redirect("principal");	
 			} else {
-				FacesUtil.assErrorMessage("Usu·rio e/ou senha incorreto(s)!");
+				FacesUtil.assErrorMessage("Usu√°rio e/ou senha incorreto(s)!");
 			}
 		}
 		
