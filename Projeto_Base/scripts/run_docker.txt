@@ -1,9 +1,33 @@
-[STEPS]
+[COMANDOS - DESENVOLVIMENTO LOCAL (MacBook Air M1)]
 
-docker-compose build --no-cache && docker-compose up -d
+── 1. Primeira vez / após mudanças no pom.xml ou código ──────────────────────
+docker compose build --no-cache && docker compose up -d
 
-docker-compose run maven
+── 2. Subir sem rebuild (containers já existem) ─────────────────────────────
+docker compose up -d
 
-docker rmi -f $(docker images -a -q)
+── 3. Acompanhar os logs em tempo real ──────────────────────────────────────
+docker compose logs -f
 
-docker rm -vf $(docker ps -a -q)
+── 4. Parar os containers (preserva volume do banco) ────────────────────────
+docker compose down
+
+── 5. Parar e apagar tudo (inclusive dados do MySQL) ────────────────────────
+docker compose down -v
+
+── 6. Rebuild só da aplicação (banco continua rodando) ──────────────────────
+docker compose build app && docker compose up -d --no-deps app
+
+── 7. Limpar imagens não utilizadas ─────────────────────────────────────────
+docker image prune -f
+
+── URL de acesso ─────────────────────────────────────────────────────────────
+Aplicação : http://localhost:8888/
+Tomcat Mgr: http://localhost:8888/manager  (usuário: tomcat / senha: tomcat)
+MySQL     : localhost:3306  (usuário: root / senha: 123456)
+
+[NOTAS]
+- O banco de dados só fica pronto depois do healthcheck passar (~30s).
+  O container da app aguarda automaticamente (depends_on: condition: service_healthy).
+- Os dados do MySQL ficam no volume Docker 'mysql_data' e persistem entre restarts.
+- Memória alocada: ~512 MB para MySQL + ~768 MB para a app = ~1.3 GB total.

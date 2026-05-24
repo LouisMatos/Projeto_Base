@@ -4,18 +4,13 @@ xmlns="http://java.sun.com/xml/ns/javaee"
 xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd"
 id="WebApp_ID" version="3.0">
 
-    <!-- Nome da sua aplicação -->
     <display-name>Projeto-Base</display-name>
-    
-    
-    
 
-    <!-- Configuração do arquivo inicial quando a aplicação for inicializada -->
     <welcome-file-list>
         <welcome-file>index.xhtml</welcome-file>
     </welcome-file-list>
 
-    <!-- Configuração do Controlador Faces Servlet -->
+    <!-- Faces Servlet -->
     <servlet>
         <servlet-name>Faces Servlet</servlet-name>
         <servlet-class>javax.faces.webapp.FacesServlet</servlet-class>
@@ -25,35 +20,41 @@ id="WebApp_ID" version="3.0">
         <servlet-name>Faces Servlet</servlet-name>
         <url-pattern>*.xhtml</url-pattern>
     </servlet-mapping>
- 
- 	<listener>
-		<listener-class>br.com.luismatos.util.MyServletContextListener</listener-class>
-	</listener>
- 
- 
-	<filter>
-		<filter-name>LoginFilter</filter-name>
-		<filter-class>br.com.luismatos.filter.LoginFilter</filter-class>
-	</filter> 
-	
-	<filter-mapping>
-		<filter-name>LoginFilter</filter-name>
-		<url-pattern>/aplicacao/*</url-pattern>
-		<dispatcher>FORWARD</dispatcher>
-		<dispatcher>REQUEST</dispatcher>
-	</filter-mapping>
-	
-	
-	<listener>
-		<listener-class>br.com.luismatos.session.SessionListener</listener-class>
-	</listener>
-	<session-config>
-		<session-timeout>60</session-timeout>
-	</session-config>
-	
-	<!-- Para o ajax sempre ser chamado com sucesso... -->
-	 <context-param>
-	     <param-name>javax.faces.PARTIAL_STATE_SAVING</param-name>
-	     <param-value>false</param-value>
-	 </context-param>
+
+    <listener>
+        <listener-class>br.com.luismatos.adapter.shared.MyServletContextListener</listener-class>
+    </listener>
+
+    <!-- Filtro de autenticação: protege apenas /aplicacao/* -->
+    <filter>
+        <filter-name>LoginFilter</filter-name>
+        <filter-class>br.com.luismatos.adapter.filter.LoginFilter</filter-class>
+    </filter>
+    <filter-mapping>
+        <filter-name>LoginFilter</filter-name>
+        <url-pattern>/aplicacao/*</url-pattern>
+        <dispatcher>FORWARD</dispatcher>
+        <dispatcher>REQUEST</dispatcher>
+    </filter-mapping>
+
+    <listener>
+        <listener-class>br.com.luismatos.adapter.shared.SessionListener</listener-class>
+    </listener>
+
+    <session-config>
+        <session-timeout>10</session-timeout>
+    </session-config>
+
+    <!-- Corrige comportamento do EL parser para campos vazios -->
+    <context-param>
+        <param-name>javax.faces.PARTIAL_STATE_SAVING</param-name>
+        <param-value>false</param-value>
+    </context-param>
+
+    <!-- Página exibida para qualquer URL que não exista na aplicação -->
+    <error-page>
+        <error-code>404</error-code>
+        <location>/error/404.xhtml</location>
+    </error-page>
+
 </web-app>

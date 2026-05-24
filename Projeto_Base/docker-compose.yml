@@ -1,36 +1,56 @@
-version: '2'
 services:
+
+  # ── Banco de dados ──────────────────────────────────────────────────────────
   db:
-    image: mysql
+    image: mysql:8.0
+    # mysql_native_password mantém compatibilidade com o driver com.mysql.jdbc.Driver usado no persistence.xml
+    command: --default-authentication-plugin=mysql_native_password
     environment:
-      - MYSQL_ROOT_PASSWORD=123456
-      - MYSQL_DATABASE=agenda
+      MYSQL_ROOT_PASSWORD: "123456"
+      MYSQL_DATABASE: agenda
     ports:
       - "3306:3306"
     volumes:
-      - mysql:/var/lib/mysql
+      - mysql_data:/var/lib/mysql
+      # Script executado na primeira inicialização do volume (ver scripts/init-dev.sql)
+      - ./scripts/init-dev.sql:/docker-entrypoint-initdb.d/01-init-dev.sql:ro
     networks:
-      - mysql-compose-network
-  maven:
-      build:
-        context: dockerfiles
-        dockerfile: dockerfile-maven
-      volumes:
-        - ~/.m2:/root/.m2
-        - $PWD:/usr/src/mymaven
-      volumes_from:
-        - tomcat
-  tomcat:
+      - app-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-p123456"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+
+  # ── Aplicação (Maven build + Tomcat 9) ────────────────────────────────────
+  app:
     build:
-      context: dockerfiles
-      dockerfile: dockerfile-apache
+      context: .
+      dockerfile: dockerfiles/Dockerfile
     ports:
       - "8888:8080"
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      # Limita heap da JVM para não saturar os 8 GB do MacBook Air M1
+      JAVA_OPTS: "-Xms256m -Xmx512m"
+      CATALINA_OPTS: "-Xms256m -Xmx512m"
     networks:
-      - mysql-compose-network
+      - app-network
+    deploy:
+      resources:
+        limits:
+          memory: 768M
 
-networks: 
-  mysql-compose-network:
+networks:
+  app-network:
     driver: bridge
+
 volumes:
-  mysql:
+  mysql_data:

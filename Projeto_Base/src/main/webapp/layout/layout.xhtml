@@ -1,61 +1,112 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
-"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml"
-	xmlns:h="http://java.sun.com/jsf/html"
-	xmlns:ui="http://java.sun.com/jsf/facelets"
-	xmlns:p="http://primefaces.org/ui">
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:p="http://primefaces.org/ui">
 
 <h:head>
-	<title>Projeto Base</title>
-	<script src="#{request.contextPath}/resources/js/topmenu.js"></script>
-	<script src="#{request.contextPath}/resources/js/validacoes.js"></script>
-	<script src="#{request.contextPath}/resources/js/jquery-1.11.1.js"></script>
-	<script type="text/javascript"
-		src="#{request.contextPath}/resources/js/bootstrap.js"></script>
-	<link type="text/css" rel="stylesheet"
-		href="#{request.contextPath}/resources/css/bootstrap.min.css" />
-	<link type="text/css" rel="stylesheet"
-		href="#{request.contextPath}/resources/css/bootstrap-theme.css" />
-	<link type="text/css" rel="stylesheet"
-		href="#{request.contextPath}/resources/css/DeixarRodapeNoFim.css" />
-		
-		
-		
-	<style type="text/css">
-	
-	
-.bs-example {
-	margin: 20px;
-}
-</style>
+    <!-- ── SLOT: título da aba do browser ───────────────────────────────────
+         Uso: <ui:define name="pageTitle">Minha Página</ui:define>
+         Padrão: "Projeto Base" -->
+    <title><ui:insert name="pageTitle">Projeto Base</ui:insert></title>
 
- <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"></meta>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+    <!-- CSS base (carregados em todas as páginas) -->
+    <link type="text/css" rel="stylesheet"
+          href="#{request.contextPath}/resources/css/bootstrap.min.css"/>
+    <link type="text/css" rel="stylesheet"
+          href="#{request.contextPath}/resources/css/bootstrap-theme.css"/>
+    <link type="text/css" rel="stylesheet"
+          href="#{request.contextPath}/resources/css/topmenu.css"/>
+    <link type="text/css" rel="stylesheet"
+          href="#{request.contextPath}/resources/css/DeixarRodapeNoFim.css"/>
+    <link type="text/css" rel="stylesheet"
+          href="#{request.contextPath}/resources/css/appModal.css"/>
+
+    <!-- ── SLOT: CSS específico da página ───────────────────────────────────
+         Uso: <ui:define name="extraStyles">
+                  <link rel="stylesheet" href="..."/>
+              </ui:define> -->
+    <ui:insert name="extraStyles"/>
 </h:head>
 
 <h:body>
 
+    <!-- ── SLOT: cabeçalho/menu ─────────────────────────────────────────────
+         Padrão: topmenu.xhtml  |  Para substituir: <ui:define name="header"> -->
+    <div id="header" class="header">
+        <ui:insert name="header">
+            <ui:include src="topmenu.xhtml"/>
+        </ui:insert>
+    </div>
 
+    <!-- ── SLOT: conteúdo principal ─────────────────────────────────────────
+         Este é o slot que toda nova página deve preencher. -->
+    <div class="bs-example">
+        <div id="content" class="content">
+            <ui:insert name="content">
+                <ui:include src="content.xhtml"/>
+            </ui:insert>
+        </div>
+    </div>
 
-	<div id="header" class="header">
-		<ui:insert name="header">
-			<ui:include src="topmenu.xhtml" />
-		</ui:insert>
-	</div>
-	<div class="bs-example">
-		<div id="content" class="content">
-			<ui:insert name="content">
-				<ui:include src="content.xhtml" />
-			</ui:insert>
-		</div>
-	</div>
-	<p:growl id="growl" life="2000" styleClass="ui-growl-message-green" showDetail="true"/>
+    <!-- Notificações globais (disponível em toda página via update="growl") -->
+    <p:growl id="growl" life="3000" styleClass="ui-growl-message-green" showDetail="true"/>
 
-	<div id="footer" class="footer">
-		<ui:insert name="footer">
-			<ui:include src="footer.xhtml" />
-		</ui:insert>
-	</div>
+    <!-- Modal de mensagem global (sucesso / erro / aviso / info) -->
+    <ui:include src="modalMensagem.xhtml"/>
+
+    <!-- ── SLOT: rodapé ─────────────────────────────────────────────────────
+         Padrão: footer.xhtml  |  Para substituir: <ui:define name="footer"> -->
+    <div id="footer" class="footer">
+        <ui:insert name="footer">
+            <ui:include src="footer.xhtml"/>
+        </ui:insert>
+    </div>
+
+    <!-- JS base — jQuery DEVE vir antes do Bootstrap -->
+    <script src="#{request.contextPath}/resources/js/jquery-1.11.1.js"></script>
+    <script src="#{request.contextPath}/resources/js/bootstrap.js"></script>
+    <script src="#{request.contextPath}/resources/js/appModal.js"></script>
+    <script src="#{request.contextPath}/resources/js/sessionTimer.js"></script>
+    <script src="#{request.contextPath}/resources/js/topmenu.js"></script>
+    <script src="#{request.contextPath}/resources/js/validacoes.js"></script>
+
+    <!-- ── SLOT: scripts específicos da página ──────────────────────────────
+         Uso: <ui:define name="extraScripts">
+                  <script src="..."></script>
+              </ui:define> -->
+    <ui:insert name="extraScripts"/>
+
+    <!-- ── Controle de sessão (apenas para usuários autenticados) ───────────
+         Formulário oculto com dois botões:
+           btnKeepAlive    → AJAX no-op que renova o timeout da HttpSession
+           btnLogoutSession → POST completo que invalida a sessão e redireciona
+         Inicialização do SessionTimer só ocorre quando há usuário logado.      -->
+    <h:panelGroup rendered="#{usuarioLogadoController.logado}" layout="block">
+
+        <h:form id="sessionControlForm" style="display:none;">
+            <!-- Keep-alive: AJAX no-op — o request já renova a sessão no servidor -->
+            <p:commandButton id="btnKeepAlive"
+                             action="#{navigationController.keepAlive}"
+                             ajax="true"
+                             process="@this"
+                             update="@none"/>
+            <!-- Logout: POST completo → invalida sessão + redirect para login -->
+            <p:commandButton id="btnLogoutSession"
+                             action="#{navigationController.doLogout}"
+                             ajax="false"/>
+        </h:form>
+
+        <script type="text/javascript">
+            $(document).ready(function () {
+                SessionTimer.init('#{request.contextPath}/index.xhtml');
+            });
+        </script>
+
+    </h:panelGroup>
 
 </h:body>
 </html>

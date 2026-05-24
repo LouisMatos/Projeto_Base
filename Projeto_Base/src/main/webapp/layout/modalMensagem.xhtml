@@ -1,24 +1,185 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml"
-	xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
-	xmlns:ui="http://java.sun.com/jsf/facelets"
-	xmlns:f="http://java.sun.com/jsf/core"
-	xmlns:h="http://java.sun.com/jsf/html"
-	xmlns:opt="http://primefaces.prime.com.tr/optimus"
-	xmlns:p="http://primefaces.org/ui">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:ui="http://java.sun.com/jsf/facelets">
 
-<h:head>
+    <!--
+        Modal de mensagem global — incluso automaticamente em layout.xhtml.
+        Não é necessário nenhum código extra nas páginas.
 
-</h:head>
+        Para exibir via JavaScript (em qualquer página):
+          AppModal.showSucesso('Operação realizada com sucesso!');
+          AppModal.showErro('Ocorreu um erro inesperado.');
+          AppModal.showAviso('Atenção: verifique os dados.');
+          AppModal.showInfo('Informação importante.');
 
-<ui:composition>
+        Para exibir a partir de um ManagedBean (server-side):
+          FacesUtil.executeScript("AppModal.showSucesso('Mensagem aqui');");
 
-	<body>
+        Documentação completa em: resources/js/appModal.js
+    -->
 
-		
+    <div id="appModal" class="modal fade" tabindex="-1"
+         role="dialog" aria-labelledby="appModalTitulo" aria-hidden="true">
+        <div class="modal-dialog" role="document"
+             style="max-width: 420px; margin: 80px auto;">
+            <div class="modal-content">
 
-	</body>
+                <!-- Cabeçalho (cor muda via JS conforme o tipo) -->
+                <div class="modal-header">
+                    <button type="button" class="close"
+                            data-dismiss="modal" aria-label="Fechar">
+                        <span aria-hidden="true">&#215;</span>
+                    </button>
+                    <h4 class="modal-title" id="appModalTitulo">Mensagem</h4>
+                </div>
 
+                <!-- Ícone + mensagem centralizados -->
+                <div class="modal-body text-center">
+                    <span id="appModalIcone" class="glyphicon app-modal-icon"/>
+                    <p id="appModalMensagem"
+                       style="font-size: 15px; color: #444; margin: 0; word-break: break-word;"/>
+                </div>
+
+                <!-- Botão de confirmação -->
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default btn-ok"
+                            data-dismiss="modal">
+                        OK
+                    </button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+
+    <!-- ══════════════════════════════════════════════════════════════════════
+         Modal de CONFIRMAÇÃO global (AppConfirm)
+         Uso: AppConfirm.show({ mensagem: '...', onConfirm: fn });
+         ══════════════════════════════════════════════════════════════════════ -->
+    <div id="appConfirmModal" class="modal fade" tabindex="-1"
+         role="dialog" aria-labelledby="confirmModalTitulo">
+        <div class="modal-dialog modal-sm" role="document"
+             style="margin-top: 100px;">
+            <div class="modal-content">
+
+                <div class="modal-header modal-header-warning">
+                    <h4 class="modal-title" id="confirmModalTitulo">Confirmar</h4>
+                </div>
+
+                <div class="modal-body text-center" style="padding: 28px 24px 18px;">
+                    <span class="glyphicon glyphicon-question-sign"
+                          style="font-size: 52px; color: #f0ad4e;
+                                 display: block; margin-bottom: 14px;"/>
+                    <p id="confirmModalMensagem"
+                       style="font-size: 15px; color: #444; word-break: break-word;"/>
+                </div>
+
+                <div class="modal-footer" style="text-align: center;">
+                    <button id="btnConfirmModalOk" type="button"
+                            class="btn btn-danger"
+                            style="min-width: 100px; margin-right: 8px;">
+                        Confirmar
+                    </button>
+                    <button type="button" class="btn btn-default"
+                            data-dismiss="modal" style="min-width: 90px;">
+                        Cancelar
+                    </button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════════════════════
+         Modal de AVISO DE SESSÃO (aparece faltando 2 minutos para expirar)
+         Gerenciado por: resources/js/sessionTimer.js
+         ══════════════════════════════════════════════════════════════════════ -->
+    <div id="sessionWarningModal" class="modal fade" tabindex="-1"
+         role="dialog" aria-labelledby="sessionWarningTitle">
+        <div class="modal-dialog modal-sm" role="document"
+             style="margin-top: 100px;">
+            <div class="modal-content">
+
+                <div class="modal-header modal-header-warning">
+                    <h4 class="modal-title" id="sessionWarningTitle">
+                        <span class="glyphicon glyphicon-time"
+                              style="margin-right: 6px;"/>
+                        Sessão prestes a expirar
+                    </h4>
+                </div>
+
+                <div class="modal-body text-center" style="padding: 28px 24px 18px;">
+                    <p style="font-size: 15px; color: #555; margin-bottom: 14px;">
+                        Sua sessão expirará em
+                    </p>
+                    <div id="sessionCountdown" class="session-countdown">
+                        02:00
+                    </div>
+                    <p class="text-muted" style="margin-top: 14px; font-size: 13px;">
+                        Clique em <strong>Continuar</strong> para permanecer conectado.
+                    </p>
+                </div>
+
+                <div class="modal-footer" style="text-align: center;">
+                    <button id="btnSessionKeepAlive" type="button"
+                            class="btn btn-success"
+                            style="min-width: 110px; margin-right: 8px;">
+                        <span class="glyphicon glyphicon-refresh"
+                              style="margin-right: 4px;"/>
+                        Continuar
+                    </button>
+                    <button id="btnSessionLogout" type="button"
+                            class="btn btn-default"
+                            style="min-width: 90px;">
+                        Sair
+                    </button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════════════════════
+         Modal de SESSÃO ENCERRADA (aparece quando o tempo esgota)
+         backdrop static + keyboard false: obriga o usuário a ir ao login
+         ══════════════════════════════════════════════════════════════════════ -->
+    <div id="sessionExpiredModal" class="modal fade" tabindex="-1"
+         role="dialog" aria-labelledby="sessionExpiredTitle">
+        <div class="modal-dialog modal-sm" role="document"
+             style="margin-top: 100px;">
+            <div class="modal-content">
+
+                <div class="modal-header modal-header-error">
+                    <h4 class="modal-title" id="sessionExpiredTitle">
+                        <span class="glyphicon glyphicon-ban-circle"
+                              style="margin-right: 6px;"/>
+                        Sessão encerrada
+                    </h4>
+                </div>
+
+                <div class="modal-body text-center"
+                     style="padding: 32px 24px 20px;">
+                    <span class="glyphicon glyphicon-lock"
+                          style="font-size: 60px; color: #d9534f;
+                                 display: block; margin-bottom: 16px;"/>
+                    <p style="font-size: 15px; color: #444; margin: 0;">
+                        Sua sessão expirou por inatividade.<br/>
+                        Faça login novamente para continuar.
+                    </p>
+                </div>
+
+                <div class="modal-footer" style="text-align: center;">
+                    <button id="btnSessionExpiredLogin" type="button"
+                            class="btn btn-primary btn-lg"
+                            style="min-width: 150px;">
+                        <span class="glyphicon glyphicon-log-in"
+                              style="margin-right: 6px;"/>
+                        Ir para o Login
+                    </button>
+                </div>
+
+            </div>
+        </div>
+    </div>
 
 </ui:composition>
-</html>

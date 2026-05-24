@@ -1,0 +1,109 @@
+/* ════════════════════════════════════════════════════════════════════════
+   AppModal — Modal de mensagem reutilizável
+   Disponível em todas as páginas via layout.xhtml
+
+   Tipos suportados: success | error | warning | info
+   API: AppModal.show(opts) | .showSucesso() | .showErro() | .showAviso() | .showInfo()
+   ════════════════════════════════════════════════════════════════════════ */
+
+/* ── Ícone central ──────────────────────────────────────────────────────── */
+.app-modal-icon {
+    display: block;
+    font-size: 72px;
+    margin-bottom: 14px;
+    line-height: 1;
+}
+
+/* ── Headers coloridos por tipo ─────────────────────────────────────────── */
+.modal-header-success {
+    background-color: #5cb85c;
+    border-bottom-color: #4cae4c;
+    border-radius: 5px 5px 0 0;
+}
+.modal-header-error {
+    background-color: #d9534f;
+    border-bottom-color: #d43f3a;
+    border-radius: 5px 5px 0 0;
+}
+.modal-header-warning {
+    background-color: #f0ad4e;
+    border-bottom-color: #eea236;
+    border-radius: 5px 5px 0 0;
+}
+.modal-header-info {
+    background-color: #5bc0de;
+    border-bottom-color: #46b8da;
+    border-radius: 5px 5px 0 0;
+}
+
+/* Texto e botão fechar brancos em todos os headers coloridos */
+.modal-header-success .modal-title,
+.modal-header-error   .modal-title,
+.modal-header-warning .modal-title,
+.modal-header-info    .modal-title {
+    color: #fff;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+}
+.modal-header-success .close,
+.modal-header-error   .close,
+.modal-header-warning .close,
+.modal-header-info    .close {
+    color: #fff;
+    opacity: 0.85;
+    text-shadow: none;
+}
+.modal-header-success .close:hover,
+.modal-header-error   .close:hover,
+.modal-header-warning .close:hover,
+.modal-header-info    .close:hover {
+    opacity: 1;
+}
+
+/* ── Ícones coloridos por tipo ──────────────────────────────────────────── */
+.app-modal-icon-success { color: #5cb85c; }
+.app-modal-icon-error   { color: #d9534f; }
+.app-modal-icon-warning { color: #f0ad4e; }
+.app-modal-icon-info    { color: #5bc0de; }
+
+/* ── Countdown do timer de sessão ──────────────────────────────────────── */
+.session-countdown {
+    font-size:      58px;
+    font-weight:    700;
+    color:          #f0ad4e;
+    letter-spacing: 4px;
+    line-height:    1;
+    margin-bottom:  4px;
+    font-family:    'Courier New', Courier, monospace; /* garante largura fixa por dígito */
+}
+
+/* Muda para vermelho nos últimos 30 segundos (classe adicionada via JS) */
+.session-countdown.urgente {
+    color:     #d9534f;
+    animation: piscar 1s step-start infinite;
+}
+
+@keyframes piscar {
+    50% { opacity: 0.4; }
+}
+
+/* ── Ajustes visuais do modal ───────────────────────────────────────────── */
+#appModal .modal-content {
+    border-radius: 6px;
+    overflow: hidden;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.28);
+    border: none;
+}
+#appModal .modal-body {
+    padding: 32px 28px 20px;
+}
+#appModal .modal-footer {
+    text-align: center;
+    border-top: 1px solid #f0f0f0;
+    padding: 14px 20px;
+}
+#appModal .modal-footer .btn-ok {
+    min-width: 130px;
+    font-size: 15px;
+    border-radius: 4px;
+}

@@ -5,7 +5,7 @@ xsi:schemaLocation="http://java.sun.com/xml/ns/persistence http://java.sun.com/x
 	<persistence-unit name="agenda">
 		<provider>org.hibernate.ejb.HibernatePersistence</provider>
 		
-		<class>br.com.luismatos.model.Usuario</class>
+		<class>br.com.luismatos.domain.model.Usuario</class>
 		
 		<properties>
 			<!--String Conexao com o banco de dados -->

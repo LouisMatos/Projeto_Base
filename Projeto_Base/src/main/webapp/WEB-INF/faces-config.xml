@@ -7,7 +7,7 @@
     
     <converter>  
     <converter-id>ConverterEmptyToNull</converter-id>   
-    	<converter-class>br.com.luismatos.util.ConverterEmptyToNull</converter-class>   
+    	<converter-class>br.com.luismatos.adapter.shared.ConverterEmptyToNull</converter-class>   
 	</converter>
 
 </faces-config>

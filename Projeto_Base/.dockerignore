@@ -1,0 +1,21 @@
+# Controle de versão
+.git
+.gitignore
+
+# Arquivos de IDE (Eclipse / IntelliJ)
+.classpath
+.project
+.settings/
+.metadata/
+*.iml
+.idea/
+
+# Build anterior (não enviar para o contexto Docker)
+target/
+
+# Arquivos do sistema
+.DS_Store
+**/.DS_Store
+
+# Dockerfiles já são copiados pelo build context — não precisam estar no contexto da app
+# (o build só precisa de pom.xml, src/ e dockerfiles/tomcat-users.xml)
