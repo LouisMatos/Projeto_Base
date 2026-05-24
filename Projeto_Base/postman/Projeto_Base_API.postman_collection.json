@@ -1,0 +1,532 @@
+{
+  "info": {
+    "_postman_id": "projeto-base-api-v1",
+    "name": "Projeto Base — API REST",
+    "description": "Collection completa para testar a API REST do Projeto Base (Spring Boot + JWT).\n\n## Como usar\n1. Execute **Login** — o token JWT é salvo automaticamente em `{{token}}`.\n2. Todos os demais endpoints já usam `{{token}}` via Bearer.\n3. **Listar** e **Criar Usuário** salvam o id em `{{usuarioId}}` para uso em PUT/DELETE.\n\n## Usuário de desenvolvimento (seed)\n| Campo | Valor |\n|---|---|\n| E-mail | `teste` |\n| Senha | `teste` |\n| Tipo | `ADMINISTRADOR` |\n\n## Endpoints\n| Método | URL | Acesso |\n|---|---|---|\n| POST | `/api/v1/auth/login` | Público |\n| GET | `/api/v1/auth/me` | Autenticado |\n| GET | `/api/v1/usuarios` | ADMINISTRADOR |\n| POST | `/api/v1/usuarios` | ADMINISTRADOR |\n| PUT | `/api/v1/usuarios/{id}` | ADMINISTRADOR |\n| DELETE | `/api/v1/usuarios/{id}` | ADMINISTRADOR |",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080",
+      "type": "string",
+      "description": "URL base da aplicação. Altere para o ambiente desejado (dev/prod)."
+    },
+    {
+      "key": "token",
+      "value": "",
+      "type": "string",
+      "description": "Token JWT preenchido automaticamente pelo request de Login."
+    },
+    {
+      "key": "usuarioId",
+      "value": "1",
+      "type": "string",
+      "description": "Id do usuário usado em PUT e DELETE. Preenchido automaticamente por Listar e Criar."
+    }
+  ],
+  "item": [
+    {
+      "name": "Autenticação",
+      "description": "Login e consulta do usuário autenticado.",
+      "item": [
+        {
+          "name": "Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200 — Login bem-sucedido', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Resposta contém token JWT e dados do usuário', function () {",
+                  "    var json = pm.response.json();",
+                  "    pm.expect(json.token, 'token').to.be.a('string').and.not.empty;",
+                  "    pm.expect(json.email, 'email').to.be.a('string').and.not.empty;",
+                  "    pm.expect(json.tipo, 'tipo').to.be.oneOf(['COMUM', 'ADMINISTRADOR']);",
+                  "    pm.expect(json.expiresInMs, 'expiresInMs').to.be.a('number').and.above(0);",
+                  "    pm.collectionVariables.set('token', json.token);",
+                  "    console.log('✅ Token JWT salvo (início):', json.token.substring(0, 30) + '...');",
+                  "});",
+                  "",
+                  "pm.test('Content-Type é application/json', function () {",
+                  "    pm.expect(pm.response.headers.get('Content-Type')).to.include('application/json');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"teste\",\n  \"senha\": \"teste\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "auth", "login"]
+            },
+            "description": "Autentica o usuário com e-mail e senha.\n\nRetorna um token JWT que é salvo automaticamente na variável `{{token}}` e reutilizado em todos os requests protegidos.\n\n**Body:**\n```json\n{\n  \"email\": \"string — obrigatório\",\n  \"senha\": \"string — obrigatório\"\n}\n```\n\n**Resposta 200:**\n```json\n{\n  \"token\": \"eyJ...\",\n  \"email\": \"teste\",\n  \"tipo\": \"ADMINISTRADOR\",\n  \"expiresInMs\": 86400000\n}\n```"
+          },
+          "response": []
+        },
+        {
+          "name": "Me — Usuário Autenticado",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200 — Dados retornados', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Resposta contém id, email e tipoUsuario', function () {",
+                  "    var json = pm.response.json();",
+                  "    pm.expect(json.id, 'id').to.be.a('number');",
+                  "    pm.expect(json.email, 'email').to.be.a('string').and.not.empty;",
+                  "    pm.expect(json.tipoUsuario, 'tipoUsuario').to.be.oneOf(['COMUM', 'ADMINISTRADOR']);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/me",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "auth", "me"]
+            },
+            "description": "Retorna os dados do usuário identificado pelo token JWT.\n\n**Header:** `Authorization: Bearer {{token}}`\n\n**Resposta 200:**\n```json\n{\n  \"id\": 1,\n  \"email\": \"teste\",\n  \"tipoUsuario\": \"ADMINISTRADOR\"\n}\n```"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Usuários (requer ADMINISTRADOR)",
+      "description": "CRUD completo de usuários. Todos os endpoints exigem token JWT com role ADMINISTRADOR.",
+      "item": [
+        {
+          "name": "Listar Todos os Usuários",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200 — Lista retornada', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Resposta é um array de usuários', function () {",
+                  "    var json = pm.response.json();",
+                  "    pm.expect(json).to.be.an('array');",
+                  "    if (json.length > 0) {",
+                  "        pm.expect(json[0]).to.have.all.keys('id', 'email', 'tipoUsuario');",
+                  "        pm.expect(json[0].tipoUsuario).to.be.oneOf(['COMUM', 'ADMINISTRADOR']);",
+                  "        pm.collectionVariables.set('usuarioId', json[0].id);",
+                  "        console.log('📋 Total de usuários:', json.length);",
+                  "        console.log('🔑 usuarioId salvo:', json[0].id);",
+                  "    } else {",
+                  "        console.log('⚠️ Nenhum usuário encontrado');",
+                  "    }",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/usuarios",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "usuarios"]
+            },
+            "description": "Retorna todos os usuários cadastrados. Requer role `ADMINISTRADOR`.\n\nO id do primeiro usuário é salvo em `{{usuarioId}}` para uso em PUT e DELETE."
+          },
+          "response": []
+        },
+        {
+          "name": "Criar Usuário",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 201 — Usuário criado', function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "pm.test('Resposta contém dados do novo usuário (sem senha)', function () {",
+                  "    var json = pm.response.json();",
+                  "    pm.expect(json.id, 'id').to.be.a('number');",
+                  "    pm.expect(json.email, 'email').to.be.a('string').and.not.empty;",
+                  "    pm.expect(json.tipoUsuario, 'tipoUsuario').to.be.oneOf(['COMUM', 'ADMINISTRADOR']);",
+                  "    pm.expect(json).to.not.have.property('senha');",
+                  "    pm.collectionVariables.set('usuarioId', json.id);",
+                  "    console.log('✅ Usuário criado — id:', json.id, '| email:', json.email);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }]
+            },
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"novo@exemplo.com\",\n  \"senha\": \"senha123\",\n  \"confirmaSenha\": \"senha123\",\n  \"tipoUsuario\": \"COMUM\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/usuarios",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "usuarios"]
+            },
+            "description": "Cria um novo usuário. Requer role `ADMINISTRADOR`.\n\n**Body:**\n```json\n{\n  \"email\": \"string — obrigatório, formato e-mail\",\n  \"senha\": \"string — obrigatório\",\n  \"confirmaSenha\": \"string — obrigatório, igual a senha\",\n  \"tipoUsuario\": \"COMUM | ADMINISTRADOR\"\n}\n```\n\n**Resposta 201:** dados do usuário criado (sem campo senha).\n\nO id criado é salvo em `{{usuarioId}}`."
+          },
+          "response": []
+        },
+        {
+          "name": "Atualizar Usuário",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200 — Usuário atualizado', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Resposta contém dados atualizados', function () {",
+                  "    var json = pm.response.json();",
+                  "    pm.expect(json.id, 'id').to.be.a('number');",
+                  "    pm.expect(json.email, 'email').to.be.a('string').and.not.empty;",
+                  "    pm.expect(json.tipoUsuario, 'tipoUsuario').to.be.oneOf(['COMUM', 'ADMINISTRADOR']);",
+                  "    pm.expect(json).to.not.have.property('senha');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }]
+            },
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"atualizado@exemplo.com\",\n  \"tipoUsuario\": \"COMUM\",\n  \"senha\": \"\",\n  \"confirmaSenha\": \"\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/usuarios/{{usuarioId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "usuarios", "{{usuarioId}}"]
+            },
+            "description": "Atualiza os dados de um usuário existente. Requer role `ADMINISTRADOR`.\n\n**Path param:** `{{usuarioId}}` — salvo automaticamente pelos requests Listar e Criar.\n\n**Regras de senha:**\n- `senha` e `confirmaSenha` **vazios** → senha atual mantida.\n- Campos informados → devem ser iguais.\n\n**Body:**\n```json\n{\n  \"email\": \"string — obrigatório\",\n  \"tipoUsuario\": \"COMUM | ADMINISTRADOR\",\n  \"senha\": \"string — opcional\",\n  \"confirmaSenha\": \"string — opcional\"\n}\n```"
+          },
+          "response": []
+        },
+        {
+          "name": "Excluir Usuário",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 204 — Usuário excluído', function () {",
+                  "    pm.response.to.have.status(204);",
+                  "});",
+                  "",
+                  "pm.test('Corpo vazio (sem conteúdo)', function () {",
+                  "    pm.expect(pm.response.text()).to.be.empty;",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }]
+            },
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/usuarios/{{usuarioId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "usuarios", "{{usuarioId}}"]
+            },
+            "description": "Exclui o usuário com id `{{usuarioId}}`. Requer role `ADMINISTRADOR`.\n\nRetorna `204 No Content` sem corpo de resposta."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Cenários de Erro",
+      "description": "Testes negativos que validam o comportamento da API em situações de falha.",
+      "item": [
+        {
+          "name": "Login — Credenciais Inválidas (401)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 401 — Credenciais inválidas', function () {",
+                  "    pm.response.to.have.status(401);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"naoexiste@exemplo.com\",\n  \"senha\": \"senhaerrada\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "auth", "login"]
+            },
+            "description": "Valida que a API retorna 401 quando as credenciais são incorretas."
+          },
+          "response": []
+        },
+        {
+          "name": "Login — Campos Obrigatórios Ausentes (400)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 400 — Validação falhou', function () {",
+                  "    pm.response.to.have.status(400);",
+                  "});",
+                  "",
+                  "pm.test('Resposta contém lista de erros', function () {",
+                  "    var json = pm.response.json();",
+                  "    pm.expect(json.erros, 'erros').to.be.an('array').and.not.empty;",
+                  "    pm.expect(json.mensagem).to.be.a('string');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "auth", "login"]
+            },
+            "description": "Valida que a API retorna 400 com lista de erros de validação quando o body está vazio."
+          },
+          "response": []
+        },
+        {
+          "name": "Listar Usuários — Sem Token (401)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 401 — Token ausente', function () {",
+                  "    pm.response.to.have.status(401);",
+                  "});",
+                  "",
+                  "pm.test('Mensagem de erro em JSON', function () {",
+                  "    var json = pm.response.json();",
+                  "    pm.expect(json.erro).to.be.a('string').and.not.empty;",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/usuarios",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "usuarios"]
+            },
+            "description": "Valida que a API retorna 401 quando nenhum token é fornecido."
+          },
+          "response": []
+        },
+        {
+          "name": "Criar Usuário — Senhas Não Conferem (400)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 400 — Senhas não conferem', function () {",
+                  "    pm.response.to.have.status(400);",
+                  "});",
+                  "",
+                  "pm.test('Mensagem de erro informativa', function () {",
+                  "    var json = pm.response.json();",
+                  "    pm.expect(json.mensagem).to.be.a('string').and.not.empty;",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }]
+            },
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"novo@exemplo.com\",\n  \"senha\": \"senha123\",\n  \"confirmaSenha\": \"diferente456\",\n  \"tipoUsuario\": \"COMUM\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/usuarios",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "usuarios"]
+            },
+            "description": "Valida que a API retorna 400 quando `senha` e `confirmaSenha` são diferentes."
+          },
+          "response": []
+        },
+        {
+          "name": "Criar Usuário — E-mail já Cadastrado (400)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 400 — E-mail duplicado', function () {",
+                  "    pm.response.to.have.status(400);",
+                  "});",
+                  "",
+                  "pm.test('Mensagem de erro informativa', function () {",
+                  "    var json = pm.response.json();",
+                  "    pm.expect(json.mensagem).to.be.a('string').and.not.empty;",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }]
+            },
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"teste\",\n  \"senha\": \"senha123\",\n  \"confirmaSenha\": \"senha123\",\n  \"tipoUsuario\": \"ADMINISTRADOR\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/usuarios",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "usuarios"]
+            },
+            "description": "Valida que a API retorna 400 quando o e-mail já está cadastrado. Usa o e-mail do usuário seed (`teste`)."
+          },
+          "response": []
+        },
+        {
+          "name": "Excluir Usuário — Id Inexistente (404)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 404 — Usuário não encontrado', function () {",
+                  "    pm.response.to.have.status(404);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }]
+            },
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/usuarios/999999",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "usuarios", "999999"]
+            },
+            "description": "Valida que a API retorna 404 ao tentar excluir um id que não existe."
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}
