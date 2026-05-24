@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Login — Projeto Base</title>
+    <link rel="stylesheet" th:href="@{/vendor/bootstrap/css/bootstrap.min.css}">
+    <link rel="stylesheet" th:href="@{/fonts/font-awesome-4.7.0/css/font-awesome.min.css}">
+    <link rel="stylesheet" th:href="@{/fonts/Linearicons-Free-v1.0.0/icon-font.min.css}">
+    <link rel="stylesheet" th:href="@{/vendor/animate/animate.css}">
+    <link rel="stylesheet" th:href="@{/vendor/css-hamburgers/hamburgers.min.css}">
+    <link rel="stylesheet" th:href="@{/vendor/animsition/css/animsition.min.css}">
+    <link rel="stylesheet" th:href="@{/vendor/select2/select2.min.css}">
+    <link rel="stylesheet" th:href="@{/vendor/daterangepicker/daterangepicker.css}">
+    <link rel="stylesheet" th:href="@{/css/util.css}">
+    <link rel="stylesheet" th:href="@{/css/main.css}">
+</head>
+<body>
+
+<div class="limiter">
+    <div class="container-login100" style="background-image: url('/imagens/images/bg-01.jpg');">
+        <div class="wrap-login100 p-t-30 p-b-50">
+
+            <span class="login100-form-title p-b-41">Login da Conta</span>
+
+            <form th:action="@{/login}" method="post"
+                  class="login100-form validate-form p-b-33 p-t-5">
+
+                <!-- Spring Security CSRF token (Thymeleaf adiciona automaticamente com th:action) -->
+
+                <div th:if="${param.error}"
+                     class="alert alert-danger text-center"
+                     style="margin-bottom: 15px; border-radius: 4px; padding: 8px 16px;">
+                    E-mail e/ou senha incorretos.
+                </div>
+                <div th:if="${param.logout}"
+                     class="alert alert-success text-center"
+                     style="margin-bottom: 15px; border-radius: 4px; padding: 8px 16px;">
+                    Sessão encerrada com sucesso.
+                </div>
+
+                <div class="wrap-input100 validate-input" data-validate="Insira o e-mail">
+                    <input class="input100" type="email" name="username"
+                           placeholder="E-mail" autocomplete="username">
+                    <span class="focus-input100" data-placeholder="&#xe82a;"></span>
+                </div>
+
+                <div class="wrap-input100 validate-input" data-validate="Digite a senha">
+                    <input class="input100" type="password" name="password"
+                           placeholder="Senha" autocomplete="current-password">
+                    <span class="focus-input100" data-placeholder="&#xe80f;"></span>
+                </div>
+
+                <div class="container-login100-form-btn m-t-32">
+                    <button class="login100-form-btn" type="submit">Entrar</button>
+                </div>
+
+            </form>
+        </div>
+    </div>
+</div>
+
+<script th:src="@{/vendor/jquery/jquery-3.2.1.min.js}"></script>
+<script th:src="@{/vendor/animsition/js/animsition.min.js}"></script>
+<script th:src="@{/vendor/bootstrap/js/popper.js}"></script>
+<script th:src="@{/vendor/bootstrap/js/bootstrap.min.js}"></script>
+<script th:src="@{/vendor/select2/select2.min.js}"></script>
+<script th:src="@{/vendor/daterangepicker/moment.min.js}"></script>
+<script th:src="@{/vendor/daterangepicker/daterangepicker.js}"></script>
+<script th:src="@{/js/main.js}"></script>
+
+</body>
+</html>

@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="pt-BR">
+<body>
+<th:block th:fragment="modais">
+
+    <!-- Modal de mensagem global (AppModal) -->
+    <div id="appModal" class="modal fade" tabindex="-1"
+         role="dialog" aria-labelledby="appModalTitulo" aria-hidden="true">
+        <div class="modal-dialog" role="document"
+             style="max-width: 420px; margin: 80px auto;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Fechar">
+                        <span aria-hidden="true">&#215;</span>
+                    </button>
+                    <h4 class="modal-title" id="appModalTitulo">Mensagem</h4>
+                </div>
+                <div class="modal-body text-center">
+                    <span id="appModalIcone" class="glyphicon app-modal-icon"></span>
+                    <p id="appModalMensagem"
+                       style="font-size: 15px; color: #444; margin: 0; word-break: break-word;"></p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default btn-ok" data-dismiss="modal">OK</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de confirmação global (AppConfirm) -->
+    <div id="appConfirmModal" class="modal fade" tabindex="-1"
+         role="dialog" aria-labelledby="confirmModalTitulo">
+        <div class="modal-dialog modal-sm" role="document" style="margin-top: 100px;">
+            <div class="modal-content">
+                <div class="modal-header modal-header-warning">
+                    <h4 class="modal-title" id="confirmModalTitulo">Confirmar</h4>
+                </div>
+                <div class="modal-body text-center" style="padding: 28px 24px 18px;">
+                    <span class="glyphicon glyphicon-question-sign"
+                          style="font-size: 52px; color: #f0ad4e; display: block; margin-bottom: 14px;"></span>
+                    <p id="confirmModalMensagem"
+                       style="font-size: 15px; color: #444; word-break: break-word;"></p>
+                </div>
+                <div class="modal-footer" style="text-align: center;">
+                    <button id="btnConfirmModalOk" type="button"
+                            class="btn btn-danger" style="min-width: 100px; margin-right: 8px;">
+                        Confirmar
+                    </button>
+                    <button type="button" class="btn btn-default"
+                            data-dismiss="modal" style="min-width: 90px;">
+                        Cancelar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</th:block>
+</body>
+</html>

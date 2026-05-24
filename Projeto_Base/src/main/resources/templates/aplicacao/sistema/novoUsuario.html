@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/layout}"
+      lang="pt-BR">
+<head>
+    <title>Novo Usuário</title>
+</head>
+<body>
+<div layout:fragment="content">
+    <div class="container" style="padding-top: 30px; padding-bottom: 50px;">
+
+        <!-- Breadcrumb -->
+        <ol class="breadcrumb">
+            <li><a th:href="@{/aplicacao/principal}">
+                <span class="glyphicon glyphicon-home"></span> Principal
+            </a></li>
+            <li>Sistema</li>
+            <li class="active">Novo Usuário</li>
+        </ol>
+
+        <div class="row">
+            <div class="col-xs-12 col-sm-10 col-sm-offset-1 col-md-8 col-md-offset-2 col-lg-6 col-lg-offset-3">
+                <div class="panel panel-primary" style="box-shadow: 0 2px 8px rgba(0,0,0,0.12);">
+
+                    <div class="panel-heading">
+                        <h3 class="panel-title">
+                            <span class="glyphicon glyphicon-user" style="margin-right: 8px;"></span>
+                            Cadastro de Usuário
+                        </h3>
+                    </div>
+
+                    <div class="panel-body">
+
+                        <form th:action="@{/aplicacao/sistema/usuario/novo}"
+                              th:object="${usuario}"
+                              method="post"
+                              autocomplete="off">
+
+                            <!-- E-mail -->
+                            <div class="form-group">
+                                <label class="control-label" style="font-weight:600; color:#555;">
+                                    <span class="glyphicon glyphicon-envelope" style="margin-right:4px;"></span>
+                                    E-mail <span class="text-danger">*</span>
+                                </label>
+                                <input type="email" class="form-control"
+                                       th:field="*{email}"
+                                       placeholder="nome@dominio.com"
+                                       autocomplete="off">
+                            </div>
+
+                            <!-- Senha -->
+                            <div class="form-group">
+                                <label class="control-label" style="font-weight:600; color:#555;">
+                                    <span class="glyphicon glyphicon-lock" style="margin-right:4px;"></span>
+                                    Senha <span class="text-danger">*</span>
+                                </label>
+                                <input type="password" class="form-control"
+                                       th:field="*{senha}"
+                                       placeholder="Mínimo 6 caracteres"
+                                       autocomplete="new-password">
+                            </div>
+
+                            <!-- Confirmar Senha -->
+                            <div class="form-group">
+                                <label class="control-label" style="font-weight:600; color:#555;">
+                                    <span class="glyphicon glyphicon-lock" style="margin-right:4px;"></span>
+                                    Confirmar Senha <span class="text-danger">*</span>
+                                </label>
+                                <input type="password" class="form-control"
+                                       th:field="*{confirmaSenha}"
+                                       placeholder="Repita a senha"
+                                       autocomplete="new-password">
+                            </div>
+
+                            <!-- Tipo de Usuário -->
+                            <div class="form-group">
+                                <label class="control-label" style="font-weight:600; color:#555;">
+                                    <span class="glyphicon glyphicon-tag" style="margin-right:4px;"></span>
+                                    Tipo de Usuário <span class="text-danger">*</span>
+                                </label>
+                                <select class="form-control" th:field="*{tipoUsuario}">
+                                    <option value="">— Selecione —</option>
+                                    <option th:each="tipo : ${tiposUsuario}"
+                                            th:value="${tipo}"
+                                            th:text="${tipo.descricao}"></option>
+                                </select>
+                            </div>
+
+                            <p class="text-muted" style="font-size:12px; margin-bottom:20px;">
+                                <span class="text-danger">*</span> Campos obrigatórios
+                            </p>
+
+                            <hr style="margin-top:0;">
+
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-5" style="margin-bottom:10px;">
+                                    <a th:href="@{/aplicacao/sistema/usuario/novo}"
+                                       class="btn btn-default btn-block">Limpar</a>
+                                </div>
+                                <div class="col-xs-12 col-sm-7">
+                                    <button type="submit" class="btn btn-primary btn-block">
+                                        Salvar Usuário
+                                    </button>
+                                </div>
+                            </div>
+
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+</body>
+</html>
