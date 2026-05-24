@@ -1,5 +1,6 @@
 package br.com.luismatos.infrastructure.security;
 
+import br.com.luismatos.adapter.navigation.Routes;
 import br.com.luismatos.domain.model.Usuario;
 import br.com.luismatos.domain.repository.UsuarioRepository;
 import org.springframework.beans.factory.annotation.Value;
@@ -49,8 +50,8 @@ public class SecurityConfig {
             .sessionManagement(session ->
                 session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/api/v1/auth/login").permitAll()
-                .requestMatchers("/api/v1/usuarios/**").hasRole("ADMINISTRADOR")
+                .requestMatchers(Routes.Api.AUTH_LOGIN).permitAll()
+                .requestMatchers(Routes.Api.USUARIOS + "/**").hasRole("ADMINISTRADOR")
                 .anyRequest().authenticated()
             )
             .addFilterBefore(
@@ -92,7 +93,7 @@ public class SecurityConfig {
                     "/swagger-ui/**", "/swagger-ui.html",
                     "/v3/api-docs/**"
                 ).permitAll()
-                .requestMatchers("/login", "/error").permitAll()
+                .requestMatchers(Routes.Web.LOGIN, "/error").permitAll()
                 // Área de sistema: somente ADMINISTRADOR
                 .requestMatchers("/aplicacao/sistema/**").hasRole("ADMINISTRADOR")
                 // Demais rotas autenticadas
@@ -100,15 +101,15 @@ public class SecurityConfig {
                 .anyRequest().permitAll()
             )
             .formLogin(form -> form
-                .loginPage("/login")
-                .loginProcessingUrl("/login")
-                .defaultSuccessUrl("/aplicacao/principal", true)
-                .failureUrl("/login?error=true")
+                .loginPage(Routes.Web.LOGIN)
+                .loginProcessingUrl(Routes.Web.LOGIN)
+                .defaultSuccessUrl(Routes.Web.PRINCIPAL, true)
+                .failureUrl(Routes.Web.LOGIN + "?error=true")
                 .permitAll()
             )
             .logout(logout -> logout
                 .logoutUrl("/logout")
-                .logoutSuccessUrl("/login?logout=true")
+                .logoutSuccessUrl(Routes.Web.LOGIN + "?logout=true")
                 .invalidateHttpSession(true)
                 .deleteCookies("JSESSIONID")
                 .permitAll()

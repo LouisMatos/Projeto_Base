@@ -1,5 +1,6 @@
 package br.com.luismatos.adapter.api;
 
+import br.com.luismatos.adapter.navigation.Routes;
 import br.com.luismatos.adapter.api.dto.UsuarioRequest;
 import br.com.luismatos.adapter.api.dto.UsuarioResponse;
 import br.com.luismatos.application.UsuarioService;
@@ -9,21 +10,18 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/v1/usuarios")
 @Tag(name = "Usuários", description = "Gestão de usuários — requer role ADMINISTRADOR")
 public class UsuarioApiController {
 
@@ -33,7 +31,7 @@ public class UsuarioApiController {
         this.usuarioService = usuarioService;
     }
 
-    @GetMapping
+    @GetMapping(Routes.Api.USUARIOS)
     @Operation(summary = "Listar todos os usuários")
     public List<UsuarioResponse> listar() {
         return usuarioService.listarTodos().stream()
@@ -41,7 +39,7 @@ public class UsuarioApiController {
             .toList();
     }
 
-    @PostMapping
+    @PostMapping(Routes.Api.USUARIOS)
     @ResponseStatus(HttpStatus.CREATED)
     @Operation(
         summary = "Criar novo usuário",
@@ -55,7 +53,7 @@ public class UsuarioApiController {
         return UsuarioResponse.de(usuarioService.registrar(toEntity(request)));
     }
 
-    @PutMapping("/{id}")
+    @PutMapping(Routes.Api.USUARIO_BY_ID)
     @Operation(
         summary = "Atualizar usuário existente",
         description = "Senha: se omitida ou vazia, mantém a senha atual.",
@@ -75,7 +73,7 @@ public class UsuarioApiController {
         return UsuarioResponse.de(usuarioService.atualizar(usuario));
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping(Routes.Api.USUARIO_BY_ID)
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @Operation(
         summary = "Excluir usuário",

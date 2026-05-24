@@ -1,10 +1,10 @@
 package br.com.luismatos.adapter.api;
 
+import br.com.luismatos.adapter.navigation.Routes;
 import br.com.luismatos.adapter.api.dto.LoginRequest;
 import br.com.luismatos.adapter.api.dto.LoginResponse;
 import br.com.luismatos.adapter.api.dto.UsuarioResponse;
 import br.com.luismatos.application.UsuarioService;
-import br.com.luismatos.domain.model.Usuario;
 import br.com.luismatos.infrastructure.security.JwtService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -17,11 +17,9 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/v1/auth")
 @Tag(name = "Autenticação", description = "Login e informações do usuário autenticado")
 public class AuthApiController {
 
@@ -37,7 +35,7 @@ public class AuthApiController {
         this.expirationMs   = expirationMs;
     }
 
-    @PostMapping("/login")
+    @PostMapping(Routes.Api.AUTH_LOGIN)
     @Operation(
         summary = "Autenticar usuário",
         description = "Recebe e-mail e senha, retorna token JWT para uso nos demais endpoints.",
@@ -58,7 +56,7 @@ public class AuthApiController {
             .orElseGet(() -> ResponseEntity.status(HttpStatus.UNAUTHORIZED).build());
     }
 
-    @GetMapping("/me")
+    @GetMapping(Routes.Api.AUTH_ME)
     @Operation(
         summary = "Dados do usuário autenticado",
         description = "Retorna as informações do usuário representado pelo token JWT.",
