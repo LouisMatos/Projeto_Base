@@ -90,13 +90,13 @@
         <h:form id="sessionControlForm" style="display:none;">
             <!-- Keep-alive: AJAX no-op — o request já renova a sessão no servidor -->
             <p:commandButton id="btnKeepAlive"
-                             action="#{navigationController.keepAlive}"
+                             action="#{navigationController.renovarSessao}"
                              ajax="true"
                              process="@this"
                              update="@none"/>
             <!-- Logout: POST completo → invalida sessão + redirect para login -->
             <p:commandButton id="btnLogoutSession"
-                             action="#{navigationController.doLogout}"
+                             action="#{navigationController.logout}"
                              ajax="false"/>
         </h:form>
 

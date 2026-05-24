@@ -44,22 +44,23 @@ public class NavigationController implements Serializable {
 
     // ── Área de administrador ─────────────────────────────────────────────────
 
-    public String irParaNovoUsuario()        { return navegar(Rota.NOVO_USUARIO); }
-    public String irParaListarUsuarios()     { return navegar(Rota.LISTAR_USUARIOS); }
+    public String irParaNovoUsuario()    { return navegar(Rota.NOVO_USUARIO); }
+    public String irParaListarUsuarios() { return navegar(Rota.LISTAR_USUARIOS); }
 
     // ── Keep-alive de sessão ──────────────────────────────────────────────────
 
     /**
      * Chamado via AJAX pelo sessionTimer.js quando o usuário clica em "Continuar".
-     * Não precisa de lógica: qualquer request ao servidor renova o timeout da HttpSession.
+     * Qualquer request ao servidor já renova automaticamente o timeout da HttpSession;
+     * este método existe apenas como alvo do botão oculto no formulário de controle.
      */
-    public String keepAlive() {
-        return null; // permanece na mesma página
+    public String renovarSessao() {
+        return null;
     }
 
     // ── Logout ────────────────────────────────────────────────────────────────
 
-    public String doLogout() {
+    public String logout() {
         SessionContext.getInstance().encerrarSessao();
         return Rota.LOGIN.getCaminho() + "?faces-redirect=true";
     }
@@ -96,7 +97,7 @@ public class NavigationController implements Serializable {
     }
 
     private boolean temAcesso(Rota rota) {
-        Usuario usuarioLogado = getUsuarioLogado();
+        Usuario usuarioLogado = SessionContext.getInstance().getUsuarioLogado();
         switch (rota.getAcesso()) {
             case PUBLICO:
                 return true;
@@ -108,9 +109,5 @@ public class NavigationController implements Serializable {
             default:
                 return false;
         }
-    }
-
-    private Usuario getUsuarioLogado() {
-        return (Usuario) SessionContext.getInstance().getAttribute("info_user");
     }
 }

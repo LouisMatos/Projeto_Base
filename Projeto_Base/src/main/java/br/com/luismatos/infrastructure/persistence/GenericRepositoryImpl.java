@@ -18,13 +18,13 @@ public class GenericRepositoryImpl<T> {
         this.entityManager = ConnectionFactory.createEntityManager();
     }
 
-    protected T salvar(T object) {
+    protected T salvar(T entidade) {
         try {
             beginTransaction();
-            object = entityManager.merge(object);
+            entidade = entityManager.merge(entidade);
             entityManager.flush();
             entityManager.getTransaction().commit();
-            return object;
+            return entidade;
         } catch (Exception e) {
             rollbackIfActive();
             logger.log(Level.SEVERE, "Erro ao salvar entidade", e);
@@ -32,11 +32,13 @@ public class GenericRepositoryImpl<T> {
         }
     }
 
-    protected boolean deletar(T object) {
+    protected boolean deletar(T entidade) {
         try {
             beginTransaction();
-            T managed = entityManager.contains(object) ? object : entityManager.merge(object);
-            entityManager.remove(managed);
+            T gerenciada = entityManager.contains(entidade)
+                ? entidade
+                : entityManager.merge(entidade);
+            entityManager.remove(gerenciada);
             entityManager.getTransaction().commit();
             return true;
         } catch (Exception e) {

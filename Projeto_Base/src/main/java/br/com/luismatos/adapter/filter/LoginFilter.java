@@ -1,5 +1,6 @@
 package br.com.luismatos.adapter.filter;
 
+import br.com.luismatos.adapter.shared.SessionContext;
 import br.com.luismatos.domain.model.Usuario;
 
 import javax.servlet.Filter;
@@ -24,6 +25,12 @@ import java.io.IOException;
  */
 public class LoginFilter implements Filter {
 
+    private static final String HEADER_FACES_REQUEST        = "Faces-Request";
+    private static final String VALOR_AJAX_PARCIAL          = "partial/ajax";
+    private static final String PARAMETRO_JSF_AJAX          = "javax.faces.partial.ajax";
+    private static final String CHAVE_PAGINA_ATUAL          = "currentPage";
+    private static final String CHAVE_PAGINA_ANTERIOR       = "lastPage";
+
     @Override
     public void init(FilterConfig config) throws ServletException {}
 
@@ -39,14 +46,14 @@ public class LoginFilter implements Filter {
         HttpSession         session      = httpRequest.getSession(false);
 
         String  uri           = httpRequest.getRequestURI();
-        Usuario usuarioLogado = (session != null) ? (Usuario) session.getAttribute("info_user") : null;
+        Usuario usuarioLogado = (session != null)
+            ? (Usuario) session.getAttribute(SessionContext.CHAVE_USUARIO)
+            : null;
 
         if (uri.contains("/aplicacao/") && usuarioLogado == null) {
             String loginUrl = httpRequest.getContextPath() + "/index.xhtml";
 
-            if (isAjaxRequest(httpRequest)) {
-                // Para AJAX: devolve partial-response com redirect — o JSF runtime
-                // processa e redireciona o browser sem quebrar o ciclo AJAX.
+            if (isRequisicaoAjax(httpRequest)) {
                 enviarRedirectAjax(httpResponse, loginUrl);
             } else {
                 httpResponse.sendRedirect(loginUrl);
@@ -65,9 +72,9 @@ public class LoginFilter implements Filter {
      * Detecta se a requisição é um AJAX parcial do JSF/PrimeFaces.
      * JSF define o header "Faces-Request: partial/ajax" em todas as requisições AJAX.
      */
-    private boolean isAjaxRequest(HttpServletRequest request) {
-        return "partial/ajax".equals(request.getHeader("Faces-Request"))
-            || "true".equals(request.getParameter("javax.faces.partial.ajax"));
+    private boolean isRequisicaoAjax(HttpServletRequest request) {
+        return VALOR_AJAX_PARCIAL.equals(request.getHeader(HEADER_FACES_REQUEST))
+            || "true".equals(request.getParameter(PARAMETRO_JSF_AJAX));
     }
 
     /**
@@ -86,16 +93,16 @@ public class LoginFilter implements Filter {
     }
 
     private void rastrearNavegacao(HttpServletRequest request) {
-        HttpSession session     = request.getSession(true);
-        String      paginaAtual = request.getServletPath();
-        String      paginaAnt   = (String) session.getAttribute("currentPage");
+        HttpSession session          = request.getSession(true);
+        String      paginaAtual      = request.getServletPath();
+        String      paginaAnterior   = (String) session.getAttribute(CHAVE_PAGINA_ATUAL);
 
-        if (paginaAnt == null) {
-            session.setAttribute("lastPage",    paginaAtual);
-            session.setAttribute("currentPage", paginaAtual);
-        } else if (!paginaAnt.equals(paginaAtual)) {
-            session.setAttribute("lastPage",    paginaAnt);
-            session.setAttribute("currentPage", paginaAtual);
+        if (paginaAnterior == null) {
+            session.setAttribute(CHAVE_PAGINA_ANTERIOR, paginaAtual);
+            session.setAttribute(CHAVE_PAGINA_ATUAL,    paginaAtual);
+        } else if (!paginaAnterior.equals(paginaAtual)) {
+            session.setAttribute(CHAVE_PAGINA_ANTERIOR, paginaAnterior);
+            session.setAttribute(CHAVE_PAGINA_ATUAL,    paginaAtual);
         }
     }
 }

@@ -28,9 +28,9 @@ public class ListarUsuariosController implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    private List<Usuario>    usuarios;
-    private Usuario          usuarioEdicao;
-    private Long             idParaExcluir;
+    private List<Usuario> usuarios;
+    private Usuario       usuarioEdicao;
+    private Long          idParaExcluir;
 
     private final UsuarioService usuarioService;
 
@@ -64,7 +64,6 @@ public class ListarUsuariosController implements Serializable {
         usuarioEdicao.setId(usuario.getId());
         usuarioEdicao.setEmail(usuario.getEmail());
         usuarioEdicao.setTipoUsuario(usuario.getTipoUsuario());
-        // Senha não é copiada: o admin preenche nova senha apenas se quiser alterar
         FacesUtil.executeScript("$('#editarUsuarioModal').modal('show');");
     }
 
@@ -73,23 +72,9 @@ public class ListarUsuariosController implements Serializable {
      * Regra de senha: se os campos de senha estiverem em branco, a senha atual é mantida.
      */
     public String salvarEdicao() {
-        String novaSenha = usuarioEdicao.getSenha();
-        String confirma  = usuarioEdicao.getConfirmaSenha();
-
-        boolean senhaInformada   = novaSenha != null && !novaSenha.trim().isEmpty();
-        boolean confirmaInformada = confirma  != null && !confirma.trim().isEmpty();
-
-        if (senhaInformada != confirmaInformada) {
-            FacesUtil.executeScript(
-                "AppModal.showAviso('Preencha ambos os campos de senha ou deixe-os em branco para manter a senha atual.');"
-            );
-            return null;
-        }
-
-        if (senhaInformada && !novaSenha.equals(confirma)) {
-            FacesUtil.executeScript(
-                "AppModal.showAviso('As senhas não conferem. Verifique e tente novamente.');"
-            );
+        String mensagemValidacao = validarSenhasEdicao();
+        if (mensagemValidacao != null) {
+            FacesUtil.executeScript("AppModal.showAviso('" + FacesUtil.escapeJs(mensagemValidacao) + "');");
             return null;
         }
 
@@ -142,9 +127,7 @@ public class ListarUsuariosController implements Serializable {
         try {
             usuarioService.excluir(idParaExcluir);
             carregarUsuarios();
-            FacesUtil.executeScript(
-                "AppModal.showSucesso('Usuário excluído com sucesso.');"
-            );
+            FacesUtil.executeScript("AppModal.showSucesso('Usuário excluído com sucesso.');" );
         } catch (IllegalArgumentException e) {
             FacesUtil.executeScript(
                 "AppModal.showErro('" + FacesUtil.escapeJs(e.getMessage()) + "');"
@@ -166,15 +149,38 @@ public class ListarUsuariosController implements Serializable {
     }
 
     public boolean isUsuarioLogadoAdmin() {
-        Usuario logado = (Usuario) SessionContext.getInstance().getAttribute("info_user");
+        Usuario logado = SessionContext.getInstance().getUsuarioLogado();
         return logado != null && TipoUsuario.ADMINISTRADOR.equals(logado.getTipoUsuario());
+    }
+
+    // ── Helpers privados ──────────────────────────────────────────────────────
+
+    /**
+     * Valida os campos de senha do formulário de edição.
+     *
+     * @return mensagem de erro se inválido; {@code null} se tudo estiver correto.
+     */
+    private String validarSenhasEdicao() {
+        String novaSenha = usuarioEdicao.getSenha();
+        String confirma  = usuarioEdicao.getConfirmaSenha();
+
+        boolean novaSenhaInformada   = novaSenha != null && !novaSenha.trim().isEmpty();
+        boolean confirmaSenhaInformada = confirma  != null && !confirma.trim().isEmpty();
+
+        if (novaSenhaInformada != confirmaSenhaInformada) {
+            return "Preencha ambos os campos de senha ou deixe-os em branco para manter a senha atual.";
+        }
+        if (novaSenhaInformada && !novaSenha.equals(confirma)) {
+            return "As senhas não conferem. Verifique e tente novamente.";
+        }
+        return null;
     }
 
     // ── Getters/Setters ───────────────────────────────────────────────────────
 
-    public List<Usuario>  getUsuarios()      { return usuarios; }
-    public Usuario        getUsuarioEdicao() { return usuarioEdicao; }
-    public void           setUsuarioEdicao(Usuario u) { this.usuarioEdicao = u; }
-    public Long           getIdParaExcluir() { return idParaExcluir; }
-    public void           setIdParaExcluir(Long id) { this.idParaExcluir = id; }
+    public List<Usuario> getUsuarios()      { return usuarios; }
+    public Usuario       getUsuarioEdicao() { return usuarioEdicao; }
+    public void          setUsuarioEdicao(Usuario u) { this.usuarioEdicao = u; }
+    public Long          getIdParaExcluir() { return idParaExcluir; }
+    public void          setIdParaExcluir(Long id) { this.idParaExcluir = id; }
 }

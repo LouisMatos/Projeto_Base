@@ -33,8 +33,8 @@ public class LoginController implements Serializable {
      * Retornar String (em vez de void + redirect manual) permite que o JSF
      * processe a navegação inclusive em contexto AJAX, preservando a URL no browser.
      */
-    public String efetuarLogin() {
-        if (isCredenciaisVazias()) {
+    public String login() {
+        if (credenciaisAusentes()) {
             FacesUtil.addErrorMessage("Informe o e-mail e a senha.");
             return null;
         }
@@ -44,7 +44,7 @@ public class LoginController implements Serializable {
         );
 
         if (autenticado.isPresent()) {
-            SessionContext.getInstance().setAttribute("info_user", autenticado.get());
+            SessionContext.getInstance().setUsuarioLogado(autenticado.get());
             return Rota.PRINCIPAL.getCaminho() + "?faces-redirect=true";
         }
 
@@ -53,13 +53,13 @@ public class LoginController implements Serializable {
     }
 
     public boolean isLogado() {
-        return SessionContext.getInstance().getAttribute("info_user") != null;
+        return SessionContext.getInstance().getUsuarioLogado() != null;
     }
 
     public Usuario getUsuario() { return usuario; }
     public void setUsuario(Usuario usuario) { this.usuario = usuario; }
 
-    private boolean isCredenciaisVazias() {
+    private boolean credenciaisAusentes() {
         return usuario.getEmail() == null || usuario.getEmail().trim().isEmpty()
             || usuario.getSenha() == null || usuario.getSenha().trim().isEmpty();
     }

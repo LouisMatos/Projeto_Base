@@ -15,7 +15,7 @@ public class UsuarioLogadoController implements Serializable {
     private static final long serialVersionUID = 5876307468675945587L;
 
     public Usuario getUsuario() {
-        return (Usuario) SessionContext.getInstance().getAttribute("info_user");
+        return SessionContext.getInstance().getUsuarioLogado();
     }
 
     public boolean isLogado() {
@@ -24,6 +24,6 @@ public class UsuarioLogadoController implements Serializable {
 
     public boolean isAdministrador() {
         Usuario usuario = getUsuario();
-        return usuario != null && usuario.getTipoUsuario() == TipoUsuario.ADMINISTRADOR;
+        return usuario != null && TipoUsuario.ADMINISTRADOR.equals(usuario.getTipoUsuario());
     }
 }

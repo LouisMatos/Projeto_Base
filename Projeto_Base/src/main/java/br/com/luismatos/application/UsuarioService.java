@@ -66,15 +66,23 @@ public class UsuarioService {
             throw new IllegalArgumentException("E-mail já cadastrado por outro usuário.");
         }
 
-        // Senha: só substitui se uma nova foi informada
-        String novaSenha = usuario.getSenha();
-        if (novaSenha != null && !novaSenha.trim().isEmpty()) {
-            usuario.setSenha(passwordEncoder.encode(novaSenha));
-        } else {
-            usuario.setSenha(existente.get().getSenha());
-        }
+        usuario.setSenha(resolverSenha(usuario.getSenha(), existente.get().getSenha()));
 
         return repository.salvar(usuario);
+    }
+
+    // ── Helpers ───────────────────────────────────────────────────────────────
+
+    /**
+     * Decide qual senha persistir:
+     * se uma nova senha foi informada, criptografa e retorna ela;
+     * caso contrário, mantém a senha atual sem alteração.
+     */
+    private String resolverSenha(String novaSenha, String senhaAtual) {
+        if (novaSenha != null && !novaSenha.trim().isEmpty()) {
+            return passwordEncoder.encode(novaSenha);
+        }
+        return senhaAtual;
     }
 
     // ── Exclusão ──────────────────────────────────────────────────────────────

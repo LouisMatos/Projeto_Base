@@ -2,24 +2,31 @@ package br.com.luismatos.infrastructure.security;
 
 import br.com.luismatos.application.PasswordEncoder;
 
-import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
 public class Sha256PasswordEncoder implements PasswordEncoder {
 
+    private static final String ALGORITMO = "SHA-256";
+
     @Override
-    public String encode(String rawPassword) {
+    public String encode(String senhaRaw) {
         try {
-            MessageDigest algorithm = MessageDigest.getInstance("SHA-256");
-            byte[] digest = algorithm.digest(rawPassword.getBytes("UTF-8"));
-            StringBuilder hex = new StringBuilder();
-            for (byte b : digest) {
-                hex.append(String.format("%02X", 0xFF & b));
-            }
-            return hex.toString();
-        } catch (NoSuchAlgorithmException | UnsupportedEncodingException e) {
-            throw new IllegalStateException("Falha ao codificar senha", e);
+            MessageDigest digest = MessageDigest.getInstance(ALGORITMO);
+            byte[] hashBytes = digest.digest(senhaRaw.getBytes(StandardCharsets.UTF_8));
+            return bytesToHex(hashBytes);
+        } catch (NoSuchAlgorithmException e) {
+            throw new IllegalStateException("Algoritmo de hash indisponível: " + ALGORITMO, e);
         }
+    }
+
+    /** Converte um array de bytes em representação hexadecimal maiúscula. */
+    private String bytesToHex(byte[] bytes) {
+        StringBuilder hashHex = new StringBuilder(bytes.length * 2);
+        for (byte b : bytes) {
+            hashHex.append(String.format("%02X", 0xFF & b));
+        }
+        return hashHex.toString();
     }
 }

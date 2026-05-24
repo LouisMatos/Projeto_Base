@@ -22,7 +22,7 @@ id="WebApp_ID" version="3.0">
     </servlet-mapping>
 
     <listener>
-        <listener-class>br.com.luismatos.adapter.shared.MyServletContextListener</listener-class>
+        <listener-class>br.com.luismatos.adapter.shared.ElParserContextListener</listener-class>
     </listener>
 
     <!-- Filtro de autenticação: protege apenas /aplicacao/* -->
