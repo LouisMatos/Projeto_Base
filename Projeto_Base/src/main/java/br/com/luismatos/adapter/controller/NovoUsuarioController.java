@@ -1,103 +1,56 @@
 package br.com.luismatos.adapter.controller;
 
-import br.com.luismatos.adapter.shared.FacesUtil;
 import br.com.luismatos.application.UsuarioService;
 import br.com.luismatos.domain.model.TipoUsuario;
 import br.com.luismatos.domain.model.Usuario;
-import br.com.luismatos.infrastructure.persistence.UsuarioRepositoryImpl;
-import br.com.luismatos.infrastructure.security.Sha256PasswordEncoder;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.ViewScoped;
-import java.io.Serializable;
+@Controller
+@RequestMapping("/aplicacao/sistema/usuario")
+public class NovoUsuarioController {
 
-/**
- * Controlador do formulário de cadastro de novo usuário.
- *
- * Escopo ViewScoped: mantém os dados do formulário entre postbacks
- * (ex.: erros de validação) sem perder o que o usuário digitou.
- */
-@ManagedBean
-@ViewScoped
-public class NovoUsuarioController implements Serializable {
-
-    private static final long serialVersionUID = 1L;
-
-    private Usuario usuario;
     private final UsuarioService usuarioService;
 
-    public NovoUsuarioController() {
-        usuario = new Usuario();
-        usuarioService = new UsuarioService(
-            new UsuarioRepositoryImpl(),
-            new Sha256PasswordEncoder()
-        );
+    public NovoUsuarioController(UsuarioService usuarioService) {
+        this.usuarioService = usuarioService;
     }
 
-    // ── Ações ────────────────────────────────────────────────────────────────
+    @GetMapping("/novo")
+    public String formulario(Model model) {
+        model.addAttribute("usuario", new Usuario());
+        model.addAttribute("tiposUsuario", TipoUsuario.values());
+        return "aplicacao/sistema/novoUsuario";
+    }
 
-    /**
-     * Valida e persiste o novo usuário.
-     * Retorna null para permanecer na mesma página após o AJAX.
-     * Em caso de sucesso exibe o modal de confirmação; erros vão para o growl.
-     */
-    public String salvar() {
-        // ── Validação: senhas não conferem (aviso de preenchimento) ──────────
-        if (!senhasConferem()) {
-            FacesUtil.executeScript(
-                "AppModal.showAviso('As senhas não conferem. Verifique os campos e tente novamente.');"
-            );
-            return null;
+    @PostMapping("/novo")
+    public String salvar(@ModelAttribute Usuario usuario, Model model,
+                         RedirectAttributes redirectAttrs) {
+        if (!senhasConferem(usuario)) {
+            model.addAttribute("erro", "As senhas não conferem. Verifique os campos e tente novamente.");
+            model.addAttribute("tiposUsuario", TipoUsuario.values());
+            return "aplicacao/sistema/novoUsuario";
         }
-
         try {
-            String email = usuario.getEmail();
             usuarioService.registrar(usuario);
-            limpar();
-
-            // ── Sucesso ──────────────────────────────────────────────────────
-            FacesUtil.executeScript(
-                "AppModal.showSucesso('Usuário " + FacesUtil.escapeJs(email) + " cadastrado com sucesso!');"
-            );
-
+            redirectAttrs.addFlashAttribute("sucesso",
+                "Usuário " + usuario.getEmail() + " cadastrado com sucesso!");
+            return "redirect:/aplicacao/sistema/usuario/novo";
         } catch (IllegalArgumentException e) {
-            // ── Regra de negócio (ex.: e-mail já cadastrado) ─────────────────
-            FacesUtil.executeScript(
-                "AppModal.showErro('" + FacesUtil.escapeJs(e.getMessage()) + "');"
-            );
-        } catch (Exception e) {
-            // ── Erro sistêmico ────────────────────────────────────────────────
-            FacesUtil.executeScript(
-                "AppModal.show({ tipo: 'error'," +
-                " titulo: 'Erro inesperado'," +
-                " mensagem: 'Não foi possível cadastrar o usuário. Tente novamente ou contate o suporte.' });"
-            );
+            model.addAttribute("erro", e.getMessage());
+            model.addAttribute("tiposUsuario", TipoUsuario.values());
+            return "aplicacao/sistema/novoUsuario";
         }
-        return null;
     }
 
-    /** Reseta o formulário sem submeter validações. */
-    public void limpar() {
-        usuario = new Usuario();
-    }
-
-    // ── Suporte à view ───────────────────────────────────────────────────────
-
-    /** Lista de tipos disponíveis para o selectOneMenu. */
-    public TipoUsuario[] getTiposUsuario() {
-        return TipoUsuario.values();
-    }
-
-    // ── Lógica interna ────────────────────────────────────────────────────────
-
-    private boolean senhasConferem() {
+    private boolean senhasConferem(Usuario usuario) {
         String senha    = usuario.getSenha();
         String confirma = usuario.getConfirmaSenha();
         return senha != null && !senha.isEmpty() && senha.equals(confirma);
     }
-
-    // ── Getters/Setters ───────────────────────────────────────────────────────
-
-    public Usuario getUsuario() { return usuario; }
-    public void setUsuario(Usuario usuario) { this.usuario = usuario; }
 }

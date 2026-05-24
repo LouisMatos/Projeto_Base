@@ -1,29 +1,23 @@
 # ── Stage 1: Build ──────────────────────────────────────────────────────────
-# Eclipse Temurin tem suporte ARM64 nativo (M1/M2), ao contrário de openjdk:8-jdk
-FROM maven:3.8.8-eclipse-temurin-8 AS builder
+FROM maven:3.9-eclipse-temurin-21 AS builder
 
 WORKDIR /build
 
-# Copia apenas o pom.xml primeiro para cachear as dependências numa layer separada.
-# O Docker só re-executa o download quando o pom.xml mudar.
+# Cacheia dependências numa layer separada (só re-executa quando pom.xml mudar)
 COPY pom.xml .
 RUN mvn dependency:go-offline -B -q
 
-# Copia o código-fonte e faz o build
 COPY src ./src
 RUN mvn clean package -DskipTests -B -q
 
 # ── Stage 2: Runtime ─────────────────────────────────────────────────────────
-# Tomcat 9 com Temurin JDK 8 — imagem multi-arch (AMD64 + ARM64)
-FROM tomcat:9.0-jdk8-temurin
+# JRE 21 leve, multi-arch (AMD64 + ARM64 para M1/M2)
+FROM eclipse-temurin:21-jre
 
-# Remove os webapps padrão do Tomcat para manter a imagem enxuta
-RUN rm -rf "$CATALINA_HOME/webapps/"*
+WORKDIR /app
 
-# Implanta o WAR como ROOT para que a app fique acessível em http://localhost:8888/
-COPY --from=builder /build/target/*.war "$CATALINA_HOME/webapps/ROOT.war"
-
-# Configuração do Tomcat Manager (usuário/senha: tomcat/tomcat)
-COPY dockerfiles/tomcat-users.xml "$CATALINA_HOME/conf/tomcat-users.xml"
+COPY --from=builder /build/target/*.jar app.jar
 
 EXPOSE 8080
+
+ENTRYPOINT ["java", "-jar", "/app/app.jar"]

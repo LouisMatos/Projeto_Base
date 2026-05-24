@@ -3,7 +3,6 @@ services:
   # ── Banco de dados ──────────────────────────────────────────────────────────
   db:
     image: mysql:8.0
-    # mysql_native_password mantém compatibilidade com o driver com.mysql.jdbc.Driver usado no persistence.xml
     command: --default-authentication-plugin=mysql_native_password
     environment:
       MYSQL_ROOT_PASSWORD: "123456"
@@ -12,7 +11,6 @@ services:
       - "3306:3306"
     volumes:
       - mysql_data:/var/lib/mysql
-      # Script executado na primeira inicialização do volume (ver scripts/init-dev.sql)
       - ./scripts/init-dev.sql:/docker-entrypoint-initdb.d/01-init-dev.sql:ro
     networks:
       - app-network
@@ -27,7 +25,7 @@ services:
         limits:
           memory: 512M
 
-  # ── Aplicação (Maven build + Tomcat 9) ────────────────────────────────────
+  # ── Aplicação Spring Boot (JAR embutido — sem Tomcat externo) ───────────────
   app:
     build:
       context: .
@@ -38,9 +36,14 @@ services:
       db:
         condition: service_healthy
     environment:
-      # Limita heap da JVM para não saturar os 8 GB do MacBook Air M1
-      JAVA_OPTS: "-Xms256m -Xmx512m"
-      CATALINA_OPTS: "-Xms256m -Xmx512m"
+      # Ativa o perfil dev (mesmas configurações do application-dev.properties)
+      SPRING_PROFILES_ACTIVE: dev
+      # Sobrescreve a URL localhost do perfil dev para o serviço "db" do compose
+      SPRING_DATASOURCE_URL: "jdbc:mysql://db:3306/agenda?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=America/Sao_Paulo"
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: "123456"
+      # Limita heap da JVM para não saturar o M1 com 8 GB
+      JAVA_TOOL_OPTIONS: "-Xms256m -Xmx512m"
     networks:
       - app-network
     deploy:

@@ -13,16 +13,14 @@ public interface UsuarioRepository {
 
     Optional<Usuario> buscarPorId(Long id);
 
-    /** Retorna todos os usuários ordenados por e-mail. */
     List<Usuario> listarTodos();
 
     boolean existeEmail(String email);
 
-    /**
-     * Verifica se o e-mail já está em uso por outro usuário (diferente de idExcluir).
-     * Usado na edição para permitir manter o próprio e-mail.
-     */
     boolean existeEmailParaOutroUsuario(String email, Long idExcluir);
 
     Optional<Usuario> buscarPorEmailESenha(String email, String senhaHash);
+
+    // Necessário para o UserDetailsService do Spring Security
+    Optional<Usuario> buscarPorEmail(String email);
 }

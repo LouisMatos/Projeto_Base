@@ -2,11 +2,17 @@ package br.com.luismatos.application;
 
 import br.com.luismatos.domain.model.Usuario;
 import br.com.luismatos.domain.repository.UsuarioRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
 
+@Service
 public class UsuarioService {
+
+    private static final Logger log = LoggerFactory.getLogger(UsuarioService.class);
 
     private final UsuarioRepository repository;
     private final PasswordEncoder   passwordEncoder;
@@ -19,81 +25,70 @@ public class UsuarioService {
     // ── Autenticação ──────────────────────────────────────────────────────────
 
     public Optional<Usuario> autenticar(String email, String senha) {
-        return repository.buscarPorEmailESenha(email, passwordEncoder.encode(senha));
+        Optional<Usuario> resultado = repository.buscarPorEmailESenha(email, passwordEncoder.encode(senha));
+        if (resultado.isPresent()) {
+            log.info("Autenticação bem-sucedida: {}", email);
+        } else {
+            log.warn("Falha de autenticação para: {}", email);
+        }
+        return resultado;
+    }
+
+    // ── Busca ─────────────────────────────────────────────────────────────────
+
+    public Optional<Usuario> buscarPorEmail(String email) {
+        return repository.buscarPorEmail(email);
     }
 
     // ── Listagem ──────────────────────────────────────────────────────────────
 
-    /** Retorna todos os usuários ordenados por e-mail. */
     public List<Usuario> listarTodos() {
         return repository.listarTodos();
     }
 
     // ── Criação ───────────────────────────────────────────────────────────────
 
-    /**
-     * Registra um novo usuário.
-     * @throws IllegalArgumentException se o e-mail já estiver em uso.
-     */
     public Usuario registrar(Usuario usuario) {
         if (repository.existeEmail(usuario.getEmail())) {
             throw new IllegalArgumentException("E-mail já cadastrado: " + usuario.getEmail());
         }
         usuario.setSenha(passwordEncoder.encode(usuario.getSenha()));
-        return repository.salvar(usuario);
+        Usuario salvo = repository.salvar(usuario);
+        log.info("Usuário registrado: {} [{}]", salvo.getEmail(), salvo.getTipoUsuario());
+        return salvo;
     }
 
     // ── Edição ────────────────────────────────────────────────────────────────
 
-    /**
-     * Atualiza os dados de um usuário existente.
-     *
-     * Regras de senha:
-     *   - Se {@code usuario.getSenha()} estiver em branco → mantém a senha atual.
-     *   - Caso contrário, a nova senha é criptografada antes de persistir.
-     *
-     * @throws IllegalArgumentException se o usuário não existir ou o e-mail já
-     *                                  pertencer a outro usuário.
-     */
     public Usuario atualizar(Usuario usuario) {
         Optional<Usuario> existente = repository.buscarPorId(usuario.getId());
         if (!existente.isPresent()) {
             throw new IllegalArgumentException("Usuário não encontrado.");
         }
-
-        // E-mail alterado: verifica unicidade em relação a OUTROS usuários
         if (repository.existeEmailParaOutroUsuario(usuario.getEmail(), usuario.getId())) {
             throw new IllegalArgumentException("E-mail já cadastrado por outro usuário.");
         }
-
         usuario.setSenha(resolverSenha(usuario.getSenha(), existente.get().getSenha()));
+        Usuario atualizado = repository.salvar(usuario);
+        log.info("Usuário atualizado: {}", atualizado.getEmail());
+        return atualizado;
+    }
 
-        return repository.salvar(usuario);
+    // ── Exclusão ──────────────────────────────────────────────────────────────
+
+    public void excluir(Long id) {
+        Usuario usuario = repository.buscarPorId(id)
+            .orElseThrow(() -> new IllegalArgumentException("Usuário não encontrado."));
+        repository.deletar(usuario);
+        log.info("Usuário excluído: {} (id={})", usuario.getEmail(), id);
     }
 
     // ── Helpers ───────────────────────────────────────────────────────────────
 
-    /**
-     * Decide qual senha persistir:
-     * se uma nova senha foi informada, criptografa e retorna ela;
-     * caso contrário, mantém a senha atual sem alteração.
-     */
     private String resolverSenha(String novaSenha, String senhaAtual) {
         if (novaSenha != null && !novaSenha.trim().isEmpty()) {
             return passwordEncoder.encode(novaSenha);
         }
         return senhaAtual;
-    }
-
-    // ── Exclusão ──────────────────────────────────────────────────────────────
-
-    /**
-     * Remove um usuário pelo ID.
-     * @throws IllegalArgumentException se o usuário não for encontrado.
-     */
-    public void excluir(Long id) {
-        Usuario usuario = repository.buscarPorId(id)
-            .orElseThrow(() -> new IllegalArgumentException("Usuário não encontrado."));
-        repository.deletar(usuario);
     }
 }
